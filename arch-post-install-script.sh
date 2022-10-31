@@ -14,19 +14,19 @@ function initialSystemSetup() {
 	sudo pacman -Syyu polkit-gnome kitty neovim pipewire-pulse wireplumber git brightnessctl --noconfirm --needed
  
 	# Install pamac-nosnap from AUR
-    sudo pacman -S appstream-glib --noconfirm --needed
+	sudo pacman -S appstream-glib --noconfirm --needed
 	git clone https://aur.archlinux.org/archlinux-appstream-data-pamac
-    git clone https://aur.archlinux.org/libpamac-nosnap
-    git clone https://aur.archlinux.org/pamac-nosnap
-    cd archlinux-appstream-data-pamac
-    makepkg -si --noconfirm --needed
-    cd ../libpamac-nosnap
-    makepkg -si --noconfirm --needed
-    cd ../pamac-nosnap
-    makepkg -si --noconfirm --needed
+	git clone https://aur.archlinux.org/libpamac-nosnap
+	git clone https://aur.archlinux.org/pamac-nosnap
+	cd archlinux-appstream-data-pamac
+	makepkg -si --noconfirm --needed
+	cd ../libpamac-nosnap
+	makepkg -si --noconfirm --needed
+	cd ../pamac-nosnap
+	makepkg -si --noconfirm --needed
 
 	# Making some directories and exporting variables to easy setup later
-	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share}
+	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/{.icons,.themes}
 	sudo mkdir -p /etc/zsh
 
 	echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
@@ -221,9 +221,10 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pamac install adw-gtk3 papirus-icon-theme aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat yt-dlp libva-intel-driver ttf-meslo-nerd-font-powerlevel10k noto-fonts noto-fonts-cjk noto-fonts-emoji gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs ventoy rsync stow man-db yad --no-confirm
+	sudo pamac install papirus-icon-theme aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad --no-confirm
+	sudo pamac build ventoy-bin --no-confirm
 	
-	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark flatseal org.mozilla.firefox org.chromium.Chromium org.telegram.desktop webcord flameshot copyq org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.eog freetube io.mpv.Mpv pavucontrol foliate codium eyedropper insomnia kooha com.valvesoftware.Steam minetest -y
+	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark flatseal org.mozilla.firefox org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.eog freetube io.mpv.Mpv pavucontrol foliate codium eyedropper insomnia kooha com.valvesoftware.Steam minetest -y
 	
 	# Grants Telegram access to $HOME directory to be able to send files in-app
 	sudo flatpak override --filesystem=home org.telegram.desktop
@@ -253,12 +254,27 @@ function devEnvironmentSetup() {
 
 function userEnvironmentSetup() {
 	printMessage "$1"
-	
+
+	# Setting XDG directories and some default applications
 	xdg-user-dirs-update
 	xdg-mime default nvim.desktop text/plain
 	xdg-mime default nvim.desktop text/markdown
 	xdg-mime default org.gnome.Evince.desktop application/pdf
 
+	# Install GTK and icon theme
+	curl -L "https://github.com/lassekongo83/adw-gtk3/releases/download/v4.0/adw-gtk3v4-0.tar.xz" -O
+	tar -xvf adw-gtk3v4-0.tar.xz
+	mv adw-gtk3 $HOME/.themes
+	mv adw-gtk3-dark $HOME/.themes
+	git clone https://github.com/vinceliuice/Tela-circle-icon-theme
+	cd Tela-circle-icon-theme
+	./install.sh -d $HOME/.icons
+	cd $HOME
+
+	# Cleanup
+	rm -rf archlinux-appstream-data-pamac libpamac-nosnap pamac-nosnap Tela-circle-icon-theme
+	sudo pamac remove -o gnu-free-fonts xdg-desktop-portal-gnome --no-confirm
+	
 	# Prevents xdg-utils bug which it doesn't open files with Micro on Kitty
 	ln -s /usr/bin/kitty $HOME/.local/bin/xterm
 
@@ -328,7 +344,7 @@ installPrograms "Installing Programs"
 
 devEnvironmentSetup "Installing development tools"
 
-userEnvironmentSetup "Creating user directories, downloading personal scripts and setting default applications"
+userEnvironmentSetup "Setting default applications, installing themes and making cleanups"
 
 enableZRAM "Enabling and configuring ZRAM"
 
