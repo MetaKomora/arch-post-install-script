@@ -7,12 +7,23 @@ function printMessage() {
 function initialSystemSetup() {
 	printMessage "$1"
 	
-	# if the mirrors branch is not unstable, change to it
-	[[ $(pacman-mirrors -G) != "unstable" ]] && {
-		sudo pacman-mirrors -c United_States,Canada -a -B unstable -P https -m rank
-	}
-
-	sudo pacman -Syyu pamac-gtk libpamac-flatpak-plugin polkit-gnome kitty neovim pipewire-pulse brightnessctl --noconfirm --needed
+	# Change mirrorlist
+	sudo pacman -Syyu reflector --noconfirm --needed
+	sudo reflector --country United_States,Canada --protocol https --latest 5 --save /etc/pacman.d/mirrorlist
+    
+	sudo pacman -Syyu polkit-gnome kitty neovim pipewire-pulse wireplumber git brightnessctl --noconfirm --needed
+ 
+	# Install pamac-nosnap from AUR
+    sudo pacman -S appstream-glib --noconfirm --needed
+	git clone https://aur.archlinux.org/archlinux-appstream-data-pamac
+    git clone https://aur.archlinux.org/libpamac-nosnap
+    git clone https://aur.archlinux.org/pamac-nosnap
+    cd archlinux-appstream-data-pamac
+    makepkg -si --noconfirm --needed
+    cd ../libpamac-nosnap
+    makepkg -si --noconfirm --needed
+    cd ../pamac-nosnap
+    makepkg -si --noconfirm --needed
 
 	# Making some directories and exporting variables to easy setup later
 	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share}
@@ -285,8 +296,17 @@ function zshTheming() {
 	chsh -s /bin/zsh
 	sudo chsh -s /bin/zsh
 	source $HOME/.config/zsh/.zshenv
+
+	# Downloading Zim Framework and putting module for theme powerlevel10k
 	curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | zsh
 	printf "zmodule romkatv/powerlevel10k" >> $HOME/.config/zsh/.zimrc
+
+	# Downloading recommended font for powerlevel10k
+    sudo mkdir -p /usr/local/share/fonts/TTF
+	sudo curl -L "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf" -o "/usr/local/share/fonts/TTF/MesloLGS NF Regular.ttf"
+	sudo curl -L "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf" -o "/usr/local/share/fonts/TTF/MesloLGS NF Bold.ttf"
+	sudo curl -L "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf" -o "/usr/local/share/fonts/TTF/MesloLGS NF Italic.ttf"
+	sudo curl -L "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf" -o "/usr/local/share/fonts/TTF/MesloLGS NF Bold Italic.ttf"
 
 	printMessage "Exec 'zimfw install' in a new shell to finish Powerlevel10k theme installation"
 	
