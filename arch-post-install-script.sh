@@ -72,7 +72,7 @@ function desktopEnvironmentSetup() {
 		xfconf-query -c pointers -n -p /SynPS2_Synaptics_TouchPad/Acceleration -t double -s 9.0
 		
 		# XFCE Icons, GTK and WM themes
-		xfconf-query -c xsettings -p /Net/IconThemeName -s "Tela-circle-manjaro-dark";
+		xfconf-query -c xsettings -p /Net/IconThemeName -s "Tela-circle-dark";
 		xfconf-query -c xsettings -n -p /Net/FallbackIconTheme -t "string" -s "Papirus";
 		xfconf-query -c xsettings -p /Net/ThemeName -s "Kripton-v40";
 		xfconf-query -c xfwm4 -p /general/theme -s "Kripton-v40";
@@ -149,7 +149,7 @@ function desktopEnvironmentSetup() {
 
 		# Set themes
 		gsettings set org.gnome.desktop.interface gtk-theme 'Kripton-v40'
-		gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-manjaro-dark'
+		gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dark'
 		gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
 		gsettings set org.gnome.desktop.wm.preferences theme "Kripton-v40"
 
@@ -329,16 +329,14 @@ printMessage "Please, reboot system to apply changes"
 ############################
 ##### Optional programs ####
 ############################
-# alacarte azote fsearch-git catfish mlocate exfat-utils usbutils deadd-notification-center-bin xfce4-clipman-plugin copyq polybar calibre zeal nnn bat lsd cmus figlet opus-tools pulseaudio-alsa otf-font-awesome gpick gcolor3 audacity inxi mangohud lib32-mangohud ecm-tools lutris wine-staging discord kdeconnect udiskie gparted dmidecode gdu baobab gnome-font-viewer dbeaver dupeguru bootsplash-theme-manjaro screenkey soundconverter p7zip-full unrar selene-media-converter timeshift xdman persepolis deluge-gtk ytfzf-git fzf ueberzug zenity hdsentinel font-manager gucharmap nwg-look-bin wmctrl gnome-epub-thumbnailer wf-recorder qt5ct qt5-styleplugins hardinfo appimagelauncher
+# alacarte azote fsearch-git catfish mlocate exfat-utils usbutils deadd-notification-center-bin xfce4-clipman-plugin copyq polybar calibre zeal nnn bat lsd cmus figlet opus-tools pulseaudio-alsa otf-font-awesome gpick gcolor3 audacity inxi mangohud lib32-mangohud ecm-tools lutris wine-staging discord kdeconnect udiskie gparted dmidecode gdu baobab gnome-font-viewer dbeaver dupeguru screenkey soundconverter p7zip-full unrar selene-media-converter timeshift xdman persepolis deluge-gtk ytfzf-git fzf ueberzug zenity hdsentinel font-manager gucharmap nwg-look-bin wmctrl gnome-epub-thumbnailer wf-recorder qt5ct qt5-styleplugins hardinfo appimagelauncher
 
 
 # More information:
 
 # https://wiki.archlinux.org/index.php/Improving_performance#Zram_or_zswap
-# https://manjariando.wordpress.com/2019/06/20/bootsplash-fornecido-pelo-kernel/
 # https://unix.stackexchange.com/questions/453585/shell-script-to-comment-and-uncomment-a-line-in-file
 # https://linuxize.com/post/how-to-add-directory-to-path-in-linux/
-# https://github.com/ytdl-org/youtube-dl#installation
 # https://diolinux.com.br/2019/09/remover-ruido-do-microfone-no-linux.html
 # https://www.linuxuprising.com/2020/09/how-to-enable-echo-noise-cancellation.html
 # https://wiki.manjaro.org/index.php/Set_all_Qt_app%27s_to_use_GTK%2B_font_%26_theme_settings

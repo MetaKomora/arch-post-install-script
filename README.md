@@ -1,10 +1,10 @@
-# Manjaro-Post-Install-Script
+# arch-post-install-script
 
-Personal post installation script for Manjaro
+Personal post installation script for Arch Linux
 
 Clone the script and execute with:
 ```shell
-git clone https://github.com/MetaKomora/Manjaro-Post-Install-Script && cd Manjaro-Post-Install-Script;
-chmod +x manjaro-post-install-script.sh;
-./manjaro-post-install-script.sh
+git clone https://github.com/MetaKomora/arch-post-install-script && cd arch-post-install-script;
+chmod +x arch-post-install-script.sh;
+./arch-post-install-script.sh
 ```
