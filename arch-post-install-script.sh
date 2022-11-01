@@ -264,11 +264,12 @@ function userEnvironmentSetup() {
 	xdg-mime default nvim.desktop text/markdown
 	xdg-mime default org.gnome.Evince.desktop application/pdf
 
-	# Install GTK and icon theme
+	# Install GTK, cursor and icon themes
 	curl -L "https://github.com/lassekongo83/adw-gtk3/releases/download/v4.0/adw-gtk3v4-0.tar.xz" -O
 	tar -xvf adw-gtk3v4-0.tar.xz
 	mv adw-gtk3 $HOME/.themes
 	mv adw-gtk3-dark $HOME/.themes
+	sudo pamac build bibata-cursor-theme --no-confirm
 	git clone https://github.com/vinceliuice/Tela-circle-icon-theme
 	cd Tela-circle-icon-theme
 	./install.sh -d $HOME/.icons
