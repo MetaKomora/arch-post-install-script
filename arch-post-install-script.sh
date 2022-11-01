@@ -28,7 +28,7 @@ function initialSystemSetup() {
 	cd $HOME
 
 	# Making some directories and exporting variables to easy setup later
-	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/{.icons,.themes}
+	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/{.icons,.themes} $HOME/.var/app
 	sudo mkdir -p /etc/zsh
 
 	echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
@@ -269,14 +269,16 @@ function userEnvironmentSetup() {
 	tar -xvf adw-gtk3v4-0.tar.xz
 	mv adw-gtk3 $HOME/.themes
 	mv adw-gtk3-dark $HOME/.themes
-	sudo pamac build bibata-cursor-theme --no-confirm
+	curl -L "https://github.com/ful1e5/Bibata_Cursor/releases/download/v2.0.2/Bibata-Modern-Ice.tar.gz" -O
+	tar -xvf Bibata-Modern-Ice.tar.gz
+	mv Bibata-Modern-Ice $HOME/.icons
 	git clone https://github.com/vinceliuice/Tela-circle-icon-theme
 	cd Tela-circle-icon-theme
 	./install.sh -d $HOME/.icons
 	cd $HOME
 
 	# Cleanup
-	rm -rf archlinux-appstream-data-pamac libpamac-nosnap pamac-nosnap Tela-circle-icon-theme
+	rm -rf archlinux-appstream-data-pamac libpamac-nosnap pamac-nosnap Tela-circle-icon-theme adw-gtk3v4-0.tar.xz Bibata-Modern-Ice.tar.gz
 	sudo pamac remove -o gnu-free-fonts --no-confirm
 	sudo pamac remove -o --no-confirm
 	
