@@ -197,7 +197,7 @@ function desktopEnvironmentSetup() {
 
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pamac install sway swaybg waybar rofi grim slurp dunst xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --no-confirm
+		sudo pamac install sway swaybg waybar wofi grim slurp dunst xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --no-confirm
 		# Some Wayland programs reads the current desktop variable to identify sway properly
 		printf "export XDG_CURRENT_DESKTOP=sway\n" >> $HOME/.config/zsh/.zshenv
 
