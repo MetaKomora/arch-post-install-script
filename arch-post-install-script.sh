@@ -15,6 +15,7 @@ function initialSystemSetup() {
  
 	# Install pamac-nosnap from AUR
 	sudo pacman -S appstream-glib --noconfirm --needed
+	cd $HOME
 	git clone https://aur.archlinux.org/archlinux-appstream-data-pamac
 	git clone https://aur.archlinux.org/libpamac-nosnap
 	git clone https://aur.archlinux.org/pamac-nosnap
@@ -24,6 +25,7 @@ function initialSystemSetup() {
 	makepkg -si --noconfirm --needed
 	cd ../pamac-nosnap
 	makepkg -si --noconfirm --needed
+	cd $HOME
 
 	# Making some directories and exporting variables to easy setup later
 	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/{.icons,.themes}
@@ -208,6 +210,7 @@ function desktopEnvironmentSetup() {
 		sudo systemctl enable ly
 
 		sudo pamac install thunar-volman thunar-archive-plugin tumbler --no-confirm
+		sudo pamac remove -o xdg-desktop-portal-gnome --no-confirm
 
 		# Open new Thunar instances as tabs, view location bar as buttons, hide menu bar
 		xfconf-query -c thunar -n -p /misc-open-new-window-as-tab -t bool -s true
@@ -273,7 +276,8 @@ function userEnvironmentSetup() {
 
 	# Cleanup
 	rm -rf archlinux-appstream-data-pamac libpamac-nosnap pamac-nosnap Tela-circle-icon-theme
-	sudo pamac remove -o gnu-free-fonts xdg-desktop-portal-gnome --no-confirm
+	sudo pamac remove -o gnu-free-fonts --no-confirm
+	sudo pamac remove -o --no-confirm
 	
 	# Prevents xdg-utils bug which it doesn't open files with Micro on Kitty
 	ln -s /usr/bin/kitty $HOME/.local/bin/xterm
