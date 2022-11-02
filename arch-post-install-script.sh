@@ -150,6 +150,7 @@ function desktopEnvironmentSetup() {
 		printMessage "You choose $desktopEnvironment. Installing environment"
 		sudo pamac install gdm gnome-control-center gnome-tweaks nautilus wl-clipboard --no-confirm
 		sudo systemctl enable gdm
+		isWayland=true
 
 		# Set keyboard layout
 		gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br')]"
@@ -198,6 +199,8 @@ function desktopEnvironmentSetup() {
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
 		sudo pamac install sway swaybg waybar wofi grim slurp dunst xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --no-confirm
+		isWayland=true
+
 		# Some Wayland programs reads the current desktop variable to identify sway properly
 		printf "export XDG_CURRENT_DESKTOP=sway\n" >> $HOME/.config/zsh/.zshenv
 
@@ -233,6 +236,11 @@ function installPrograms() {
 	sudo flatpak override --filesystem=home org.telegram.desktop
 	# Grants access to themes and icons inside $HOME directory to set the GTK theme but without forcing it
 	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons
+
+	# If the selected desktop environment session type is Wayland, then enable wayland support on Firefox
+	if [ "$isWayland" = true ]; then
+		sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.firefox
+	fi
 	
 	
 }
@@ -262,7 +270,12 @@ function userEnvironmentSetup() {
 	xdg-user-dirs-update
 	xdg-mime default nvim.desktop text/plain
 	xdg-mime default nvim.desktop text/markdown
+	xdg-mime default nvim.desktop application/x-shellscript
+	xdg-mime default org.gnome.eog.desktop image/png
+	xdg-mime default org.gnome.eog.desktop image/jpeg
 	xdg-mime default org.gnome.Evince.desktop application/pdf
+	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/http
+	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/https
 
 	# Install GTK, cursor and icon themes
 	curl -L "https://github.com/lassekongo83/adw-gtk3/releases/download/v4.0/adw-gtk3v4-0.tar.xz" -O
