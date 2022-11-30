@@ -198,7 +198,7 @@ function desktopEnvironmentSetup() {
 
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pamac install sway swaybg waybar wofi grim slurp dunst xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --no-confirm
+		sudo pamac install sway swaybg waybar wofi grim slurp mako xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --no-confirm
 		isWayland=true
 
 		# Some Wayland programs reads the current desktop variable to identify sway properly
@@ -227,7 +227,7 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pamac install papirus-icon-theme aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad --no-confirm
+	sudo pamac install papirus-icon-theme aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-firacode-nerd starship gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad --no-confirm
 	sudo pamac build ventoy-bin --no-confirm
 	
 	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark flatseal org.mozilla.firefox org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.eog freetube io.mpv.Mpv pavucontrol foliate codium eyedropper insomnia kooha com.valvesoftware.Steam minetest -y
@@ -295,11 +295,19 @@ function userEnvironmentSetup() {
 	sudo pamac remove -o gnu-free-fonts --no-confirm
 	sudo pamac remove -o --no-confirm
 	
-	# Prevents xdg-utils bug which it doesn't open files with Micro on Kitty
+	# Prevents xdg-utils bug which it doesn't open files with Micro or Neovim on Kitty
 	ln -s /usr/bin/kitty $HOME/.local/bin/xterm
 
 	# Set Kitty theme
 	kitty +kitten themes "Dark One Nuanced"
+
+	# Change shell to ZSH
+	chsh -s /bin/zsh
+	sudo chsh -s /bin/zsh
+	source $HOME/.config/zsh/.zshenv
+
+	# Downloading Zim Framework
+	curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | zsh
 }
 
 function enableZRAM() {
@@ -325,28 +333,6 @@ function enableZRAM() {
 	echo "vm.swappiness = 5" | sudo tee -a /etc/sysctl.d/99-sysctl.conf
 }
 
-function zshTheming() {
-	printMessage "$1"
-
-	# Change shell to ZSH
-	chsh -s /bin/zsh
-	sudo chsh -s /bin/zsh
-	source $HOME/.config/zsh/.zshenv
-
-	# Downloading Zim Framework and putting module for theme powerlevel10k
-	curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | zsh
-	printf "zmodule romkatv/powerlevel10k" >> $HOME/.config/zsh/.zimrc
-
-	# Downloading recommended font for powerlevel10k
-    sudo mkdir -p /usr/local/share/fonts/TTF
-	sudo curl -L "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf" -o "/usr/local/share/fonts/TTF/MesloLGS NF Regular.ttf"
-	sudo curl -L "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf" -o "/usr/local/share/fonts/TTF/MesloLGS NF Bold.ttf"
-	sudo curl -L "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf" -o "/usr/local/share/fonts/TTF/MesloLGS NF Italic.ttf"
-	sudo curl -L "https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf" -o "/usr/local/share/fonts/TTF/MesloLGS NF Bold Italic.ttf"
-
-	printMessage "Exec 'zimfw install' in a new shell to finish Powerlevel10k theme installation"
-	
-}
 
 # --------------------------------------------------------------------------------------------- #
 # --------------------------------------------------------------------------------------------- #
@@ -377,8 +363,6 @@ enableZRAM "Enabling and configuring ZRAM"
 	sudo update-grub
 }
 
-
-zshTheming "Installing ZIMfw and powerlevel10k theme"
 
 printMessage "Please, reboot system to apply changes"
 
