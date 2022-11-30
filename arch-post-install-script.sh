@@ -87,8 +87,8 @@ function desktopEnvironmentSetup() {
 		# XFCE Icons, GTK and WM themes
 		xfconf-query -c xsettings -p /Net/IconThemeName -s "Tela-circle-dark";
 		xfconf-query -c xsettings -n -p /Net/FallbackIconTheme -t "string" -s "Papirus";
-		xfconf-query -c xsettings -p /Net/ThemeName -s "Kripton-v40";
-		xfconf-query -c xfwm4 -p /general/theme -s "Kripton-v40";
+		xfconf-query -c xsettings -p /Net/ThemeName -s "adw-gtk3-dark";
+		xfconf-query -c xfwm4 -p /general/theme -s "adw-gtk3-dark";
 		
 		# Set panel transparency in percentage (the last option), position to bottom, lock the panel, Force panel redraw by toggling background-style
 		xfconf-query -c xfce4-panel -n -p /panels/panel-1/background-rgba -t double -t double -t double -t double -s 0.00 -s 0.00 -s 0.00 -s 0.00;
@@ -162,10 +162,10 @@ function desktopEnvironmentSetup() {
 		gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Noto Sans Bold 11'
 
 		# Set themes
-		gsettings set org.gnome.desktop.interface gtk-theme 'Kripton-v40'
+		gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
 		gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dark'
 		gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
-		gsettings set org.gnome.desktop.wm.preferences theme "Kripton-v40"
+		gsettings set org.gnome.desktop.wm.preferences theme "adw-gtk3-dark"
 
 		# Mouse and Touchpad configurations
 		gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
@@ -177,9 +177,12 @@ function desktopEnvironmentSetup() {
 		gsettings set org.gnome.nautilus.window-state maximized true
 
 		# Set FileChooser configurations
-		gsettings set org.gtk.Settings.FileChooser show-hidden true
-		gsettings set org.gtk.Settings.FileChooser sort-directories-first true
 		gsettings set org.gtk.Settings.FileChooser window-size "(1100, 670)"
+        gsettings set org.gtk.Settings.FileChooser sort-directories-first true
+        gsettings set org.gtk.Settings.FileChooser show-hidden true
+        gsettings set org.gtk.gtk4.Settings.FileChooser window-size "(1100, 670)"
+        gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
+        gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
 
 		# Set 4 static workspaces
 		gsettings set org.gnome.mutter dynamic-workspaces false
@@ -221,6 +224,15 @@ function desktopEnvironmentSetup() {
 		xfconf-query -c thunar -n -p /last-menubar-visible -t bool -s false
 
 		gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+
+        # Set FileChooser configurations
+		gsettings set org.gtk.Settings.FileChooser window-size "(1100, 670)"
+        gsettings set org.gtk.Settings.FileChooser sort-directories-first true
+        gsettings set org.gtk.Settings.FileChooser show-hidden true
+        gsettings set org.gtk.gtk4.Settings.FileChooser window-size "(1100, 670)"
+        gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
+        gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
+
 	}
 }
 
@@ -291,7 +303,7 @@ function userEnvironmentSetup() {
 	cd $HOME
 
 	# Cleanup
-	rm -rf archlinux-appstream-data-pamac libpamac-nosnap pamac-nosnap Tela-circle-icon-theme adw-gtk3v4-0.tar.xz Bibata-Modern-Ice.tar.gz
+	rm -rf archlinux-appstream-data-pamac libpamac-nosnap pamac-nosnap Tela-circle-icon-theme adw-gtk3v4-0.tar.xz Bibata-Modern-Ice.tar.gz .npm
 	sudo pamac remove -o gnu-free-fonts --no-confirm
 	sudo pamac remove -o --no-confirm
 	
