@@ -178,11 +178,11 @@ function desktopEnvironmentSetup() {
 
 		# Set FileChooser configurations
 		gsettings set org.gtk.Settings.FileChooser window-size "(1100, 670)"
-        gsettings set org.gtk.Settings.FileChooser sort-directories-first true
-        gsettings set org.gtk.Settings.FileChooser show-hidden true
-        gsettings set org.gtk.gtk4.Settings.FileChooser window-size "(1100, 670)"
-        gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
-        gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
+		gsettings set org.gtk.Settings.FileChooser sort-directories-first true
+		gsettings set org.gtk.Settings.FileChooser show-hidden true
+		gsettings set org.gtk.gtk4.Settings.FileChooser window-size "(1100, 670)"
+		gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
+		gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
 
 		# Set 4 static workspaces
 		gsettings set org.gnome.mutter dynamic-workspaces false
@@ -214,6 +214,7 @@ function desktopEnvironmentSetup() {
 	[[ $desktopEnvironment != "gnome" ]] && {
 		sudo pamac build ly --no-confirm
 		sudo systemctl enable ly
+		echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf
 
 		sudo pamac install thunar-volman thunar-archive-plugin tumbler --no-confirm
 		sudo pamac remove -o xdg-desktop-portal-gnome --no-confirm
@@ -224,14 +225,14 @@ function desktopEnvironmentSetup() {
 		xfconf-query -c thunar -n -p /last-menubar-visible -t bool -s false
 
 		gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-
-        # Set FileChooser configurations
+		
+		# Set FileChooser configurations
 		gsettings set org.gtk.Settings.FileChooser window-size "(1100, 670)"
-        gsettings set org.gtk.Settings.FileChooser sort-directories-first true
-        gsettings set org.gtk.Settings.FileChooser show-hidden true
-        gsettings set org.gtk.gtk4.Settings.FileChooser window-size "(1100, 670)"
-        gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
-        gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
+		gsettings set org.gtk.Settings.FileChooser sort-directories-first true
+		gsettings set org.gtk.Settings.FileChooser show-hidden true
+		gsettings set org.gtk.gtk4.Settings.FileChooser window-size "(1100, 670)"
+		gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
+		gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
 
 	}
 }
@@ -242,12 +243,12 @@ function installPrograms() {
 	sudo pamac install papirus-icon-theme aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-firacode-nerd starship gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad --no-confirm
 	sudo pamac build ventoy-bin --no-confirm
 	
-	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark flatseal org.mozilla.firefox org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.eog freetube io.mpv.Mpv pavucontrol foliate codium eyedropper insomnia kooha com.valvesoftware.Steam minetest -y
+	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.eog freetube io.mpv.Mpv pavucontrol foliate codium eyedropper insomnia kooha com.valvesoftware.Steam minetest -y
 	
 	# Grants Telegram access to $HOME directory to be able to send files in-app
 	sudo flatpak override --filesystem=home org.telegram.desktop
 	# Grants access to themes and icons inside $HOME directory to set the GTK theme but without forcing it
-	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons
+	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0
 
 	# If the selected desktop environment session type is Wayland, then enable wayland support on Firefox
 	if [ "$isWayland" = true ]; then
