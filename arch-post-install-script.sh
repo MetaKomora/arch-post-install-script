@@ -201,7 +201,7 @@ function desktopEnvironmentSetup() {
 
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pamac install sway swaybg waybar wofi grim slurp mako xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --no-confirm
+		sudo pamac install sway swaybg waybar rofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --no-confirm
 		isWayland=true
 
 		# Some Wayland programs reads the current desktop variable to identify sway properly
@@ -240,10 +240,9 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pamac install papirus-icon-theme aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-firacode-nerd starship gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad --no-confirm
-	sudo pamac build ventoy-bin --no-confirm
+	sudo pamac install aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat lsd inxi gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-jetbrains-mono-nerd starship gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad jq glow --no-confirm
 	
-	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.eog freetube io.mpv.Mpv pavucontrol foliate codium eyedropper insomnia kooha com.valvesoftware.Steam minetest -y
+	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe freetube io.mpv.Mpv pavucontrol foliate eyedropper insomnia kooha com.valvesoftware.Steam minetest -y
 	
 	# Grants Telegram access to $HOME directory to be able to send files in-app
 	sudo flatpak override --filesystem=home org.telegram.desktop
