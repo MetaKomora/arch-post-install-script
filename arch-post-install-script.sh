@@ -10,7 +10,7 @@ function initialSystemSetup() {
 	# Change mirrorlist
 	sudo pacman -Syyu reflector --noconfirm --needed
 	sudo reflector --country United_States,Canada --protocol https --latest 5 --save /etc/pacman.d/mirrorlist
-    
+
 	sudo pacman -Syyu polkit-gnome kitty neovim pipewire-pulse wireplumber git brightnessctl --noconfirm --needed
  
 	# Install pamac-nosnap from AUR
@@ -328,19 +328,14 @@ function enableZRAM() {
 	printMessage "$1"
 	
 	# Enable zram module
-	sudo modprobe zram
+	sudo sed -i "s/MODULES=()/MODULES=(zram)/" /etc/mkinitcpio.conf
 	echo "zram" | sudo tee -a /etc/modules-load.d/zram.conf
 	
-	# Configure the number of /dev/zram devices you want
-	echo "options zram num_devices=2" | sudo tee -a /etc/modprobe.d/zram.conf
-	
 	# Create a udev rule. Change ATTR{disksize} to your needs
-	echo 'KERNEL=="zram0", ATTR{disksize}="2G" RUN="/usr/bin/mkswap /dev/zram0", TAG+="systemd"' | sudo tee -a /etc/udev/rules.d/99-zram.rules
-	echo 'KERNEL=="zram1", ATTR{disksize}="2G" RUN="/usr/bin/mkswap /dev/zram1", TAG+="systemd"' | sudo tee -a /etc/udev/rules.d/99-zram.rules
+	echo 'ACTION=="add", KERNEL=="zram0", ATTR{comp_algorithm}="zstd", ATTR{disksize}="4G", RUN="/usr/bin/mkswap -U clear /dev/%k", TAG+="systemd"' | sudo tee -a /etc/udev/rules.d/99-zram.rules
 	
 	# Add /dev/zram to your fstab
 	echo "/dev/zram0 none swap defaults 0 0" | sudo tee -a /etc/fstab
-	echo "/dev/zram1 none swap defaults 0 0" | sudo tee -a /etc/fstab
 	
 	# Alter swappiness priority to 5
 	echo "vm.swappiness = 5" | sudo tee -a /etc/sysctl.d/99-sysctl.conf
