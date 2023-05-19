@@ -13,19 +13,20 @@ function initialSystemSetup() {
 
 	sudo pacman -Syyu polkit-gnome kitty neovim pipewire-pulse wireplumber git brightnessctl --noconfirm --needed
  
-	# Install pamac-nosnap from AUR
-	sudo pacman -S appstream-glib --noconfirm --needed
-	cd $HOME
-	git clone https://aur.archlinux.org/archlinux-appstream-data-pamac
-	git clone https://aur.archlinux.org/libpamac-nosnap
-	git clone https://aur.archlinux.org/pamac-nosnap
-	cd archlinux-appstream-data-pamac
-	makepkg -si --noconfirm --needed
-	cd ../libpamac-nosnap
-	makepkg -si --noconfirm --needed
-	cd ../pamac-nosnap
-	makepkg -si --noconfirm --needed
-	cd $HOME
+	# Install yay-bin from AUR
+	printMessage "Do you want install Yay AUR helper?"
+	read answerAUR
+
+	if [[ "$answerAUR" == "y" ]] || [[ "$answerAUR" == "Y" ]]; then {
+	    sudo pacman -S base-devel --noconfirm --needed
+	    cd $HOME
+	    git clone https://aur.archlinux.org/yay-bin.git
+	    cd yay-bin
+	    makepkg -si --noconfirm --needed
+	    cd $HOME
+	    rm -rf yay-bin
+	}
+	fi
 
 	# Making some directories and exporting variables to easy setup later
 	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/{.icons,.themes} $HOME/.var/app
@@ -60,7 +61,7 @@ function desktopEnvironmentSetup() {
 
 	[[ $desktopEnvironment == "i3" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pamac install i3-gaps rofi polybar picom nitrogen xorg-server xorg-xinput lxappearance xclip dunst --no-confirm
+		sudo pacman -S i3-gaps rofi polybar picom nitrogen xorg-server xorg-xinput lxappearance xclip dunst --noconfirm --needed
 
 		# Export $XDG_DATA_DIRS on i3 and XFCE to better integrate Flatpaks .desktop files
 		printf 'export XDG_DATA_DIRS=$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share\n' >> $HOME/.config/zsh/.zshenv
@@ -71,8 +72,8 @@ function desktopEnvironmentSetup() {
 	
 	[[ $desktopEnvironment == "xfce" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing and configuring environment"
-		sudo pamac install xfce4 xfce4-whiskermenu-plugin xfce4-netload-plugin xfce4-systemload-plugin xfce4-pulseaudio-plugin --no-confirm
-		sudo pamac build xfce4-dockbarx-plugin --no-confirm
+		sudo pacman -S xfce4 xfce4-whiskermenu-plugin xfce4-netload-plugin xfce4-systemload-plugin xfce4-pulseaudio-plugin --noconfirm --needed
+		yay -S xfce4-dockbarx-plugin --noconfirm --needed
 	
 		# Set keyboard shorcuts
 		xfconf-query -c xfce4-keyboard-shortcuts -n -p "/commands/custom/Super_L" -t string -s "xfce4-popup-whiskermenu";
@@ -148,7 +149,7 @@ function desktopEnvironmentSetup() {
 	
 	[[ $desktopEnvironment == "gnome" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pamac install gdm gnome-control-center gnome-tweaks nautilus wl-clipboard --no-confirm
+		sudo pacman -S gdm gnome-control-center gnome-tweaks nautilus wl-clipboard --noconfirm --needed
 		sudo systemctl enable gdm
 		isWayland=true
 
@@ -201,7 +202,7 @@ function desktopEnvironmentSetup() {
 
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pamac install sway swaybg waybar rofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --no-confirm
+		sudo pacman -S sway swaybg waybar rofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --noconfirm --needed
 		isWayland=true
 
 		# Some Wayland programs reads the current desktop variable to identify sway properly
@@ -212,12 +213,13 @@ function desktopEnvironmentSetup() {
 	}
 
 	[[ $desktopEnvironment != "gnome" ]] && {
-		sudo pamac build ly --no-confirm
+		sudo pacman -S ly thunar-volman thunar-archive-plugin tumbler --noconfirm --needed
+
+		# Enable ly display manager and disable pcspeaker sound on boot when using it
 		sudo systemctl enable ly
 		echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf
 
-		sudo pamac install thunar-volman thunar-archive-plugin tumbler --no-confirm
-		sudo pamac remove -o xdg-desktop-portal-gnome --no-confirm
+		sudo pacman -Rn xdg-desktop-portal-gnome --noconfirm
 
 		# Open new Thunar instances as tabs, view location bar as buttons, hide menu bar
 		xfconf-query -c thunar -n -p /misc-open-new-window-as-tab -t bool -s true
@@ -240,7 +242,7 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pamac install aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat lsd inxi gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-jetbrains-mono-nerd starship gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad jq glow --no-confirm
+	sudo pacman -S aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat lsd inxi gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-jetbrains-mono-nerd starship gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad jq glow --noconfirm --needed
 	
 	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe freetube io.mpv.Mpv pavucontrol foliate eyedropper insomnia kooha com.valvesoftware.Steam minetest -y
 	
@@ -303,9 +305,8 @@ function userEnvironmentSetup() {
 	cd $HOME
 
 	# Cleanup
-	rm -rf archlinux-appstream-data-pamac libpamac-nosnap pamac-nosnap Tela-circle-icon-theme adw-gtk3v4-0.tar.xz Bibata-Modern-Ice.tar.gz .npm
-	sudo pamac remove -o gnu-free-fonts --no-confirm
-	sudo pamac remove -o --no-confirm
+	rm -rf yay-bin Tela-circle-icon-theme adw-gtk3v4-0.tar.xz Bibata-Modern-Ice.tar.gz .npm
+	sudo pacman -Rn gnu-free-fonts --noconfirm
 	
 	# Prevents xdg-utils bug which it doesn't open files with Micro or Neovim on Kitty
 	ln -s /usr/bin/kitty $HOME/.local/bin/xterm
