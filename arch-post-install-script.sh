@@ -11,6 +11,9 @@ function initialSystemSetup() {
 	sudo pacman -Syyu reflector --noconfirm --needed
 	sudo reflector --country Sweden,United_States --protocol https --latest 5 --save /etc/pacman.d/mirrorlist
 
+	# Uncommenting some options on Pacman config
+	sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' -e 's/#ParallelDownloads = 5/ParallelDownloads = 20\nILoveCandy/' /etc/pacman.conf
+
 	sudo pacman -Syyu neovim pipewire-pulse wireplumber git brightnessctl --noconfirm --needed
  
 	# Install yay-bin from AUR
