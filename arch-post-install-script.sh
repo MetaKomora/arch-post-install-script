@@ -9,9 +9,9 @@ function initialSystemSetup() {
 	
 	# Change mirrorlist
 	sudo pacman -Syyu reflector --noconfirm --needed
-	sudo reflector --country United_States,Canada --protocol https --latest 5 --save /etc/pacman.d/mirrorlist
+	sudo reflector --country Sweden,United_States --protocol https --latest 5 --save /etc/pacman.d/mirrorlist
 
-	sudo pacman -Syyu polkit-gnome kitty neovim pipewire-pulse wireplumber git brightnessctl --noconfirm --needed
+	sudo pacman -Syyu neovim pipewire-pulse wireplumber git brightnessctl --noconfirm --needed
  
 	# Install yay-bin from AUR
 	printMessage "Do you want install Yay AUR helper?"
@@ -242,7 +242,7 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat lsd inxi gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-jetbrains-mono-nerd starship gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad jq glow --noconfirm --needed
+	sudo pacman -S polkit-gnome kitty aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat lsd inxi gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-jetbrains-mono-nerd starship gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad jq glow --noconfirm --needed
 	
 	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe freetube io.mpv.Mpv pavucontrol foliate eyedropper insomnia kooha com.valvesoftware.Steam minetest -y
 	
@@ -305,7 +305,7 @@ function userEnvironmentSetup() {
 	cd $HOME
 
 	# Cleanup
-	rm -rf yay-bin Tela-circle-icon-theme adw-gtk3v4-0.tar.xz Bibata-Modern-Ice.tar.gz .npm
+	rm -rf Tela-circle-icon-theme adw-gtk3v4-0.tar.xz Bibata-Modern-Ice.tar.gz .npm
 	sudo pacman -Rn gnu-free-fonts --noconfirm
 	
 	# Prevents xdg-utils bug which it doesn't open files with Micro or Neovim on Kitty
