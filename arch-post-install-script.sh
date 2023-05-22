@@ -285,27 +285,26 @@ function userEnvironmentSetup() {
 	xdg-mime default nvim.desktop text/plain
 	xdg-mime default nvim.desktop text/markdown
 	xdg-mime default nvim.desktop application/x-shellscript
-	xdg-mime default org.gnome.eog.desktop image/png
-	xdg-mime default org.gnome.eog.desktop image/jpeg
+	xdg-mime default org.gnome.Loupe.desktop image/png
+	xdg-mime default org.gnome.Loupe.desktop image/jpeg
 	xdg-mime default org.gnome.Evince.desktop application/pdf
 	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/http
 	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/https
 
-	# Install GTK, cursor and icon themes
-	curl -L "https://github.com/lassekongo83/adw-gtk3/releases/download/v4.0/adw-gtk3v4-0.tar.xz" -O
-	tar -xvf adw-gtk3v4-0.tar.xz
-	mv adw-gtk3 $HOME/.themes
-	mv adw-gtk3-dark $HOME/.themes
-	curl -L "https://github.com/ful1e5/Bibata_Cursor/releases/download/v2.0.2/Bibata-Modern-Ice.tar.gz" -O
+	# Install GTK, icon and cursor themes
+	cd $HOME
+	curl -L -O "$(curl "https://api.github.com/repos/lassekongo83/adw-gtk3/releases" | jq -r '.[0].assets[0].browser_download_url')"
+	tar -xvf adw-gtk3v*.tar.xz;
+	mv adw-gtk3 adw-gtk3-dark $HOME/.themes
+	git clone https://github.com/vinceliuice/Tela-circle-icon-theme
+	cd Tela-circle-icon-theme; ./install.sh -d $HOME/.icons; cd ../
+	curl -L -O "https://github.com/ful1e5/Bibata_Cursor/releases/latest/download/Bibata-Modern-Ice.tar.gz"
 	tar -xvf Bibata-Modern-Ice.tar.gz
 	mv Bibata-Modern-Ice $HOME/.icons
-	git clone https://github.com/vinceliuice/Tela-circle-icon-theme
-	cd Tela-circle-icon-theme
-	./install.sh -d $HOME/.icons
 	cd $HOME
 
 	# Cleanup
-	rm -rf Tela-circle-icon-theme adw-gtk3v4-0.tar.xz Bibata-Modern-Ice.tar.gz .npm
+	rm -rf adw-gtk3v*.tar.xz Tela-circle-icon-theme Bibata-Modern-Ice.tar.gz .npm
 	sudo pacman -Rn gnu-free-fonts --noconfirm
 	
 	# Prevents xdg-utils bug which it doesn't open files with Micro or Neovim on Kitty
