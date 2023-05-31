@@ -265,14 +265,31 @@ function installPrograms() {
 function devEnvironmentSetup() {
 	printMessage "$1"
 
-	printf "\nInstalling NVM and latest node LTS\n"
-	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+	printf "\nInstalling ASDF version manager, nodeJS and shellcheck\n"
 
-	# Export $NVM_DIR temporarily to use NVM commands to install Node
-	export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-	nvm install --lts --latest-npm
-	printf '\nexport NVM_DIR="$HOME/.config/nvm"\n[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm\n' >> $HOME/.config/zsh/.zshrc
-	mv $HOME/.nvm $HOME/.config/nvm
+	# Export ASDF variables temporarily to use ASDF commands now
+	export ASDF_CONFIG_FILE="$HOME/.config/asdf/asdfrc"
+	export ASDF_DIR="$HOME/.config/asdf"
+	export ASDF_DATA_DIR="$HOME/.local/state/asdf"
+	export ASDF_DEFAULT_TOOL_VERSIONS_FILENAME=".config/asdf/.tool-versions"
+
+	# Properly exporting ASDF variables to zshrc
+	printf '\n# ASDF version manager' >> $HOME/.config/zsh/.zshrc
+	printf '\nexport ASDF_CONFIG_FILE="$HOME/.config/asdf/asdfrc"' >> $HOME/.config/zsh/.zshrc
+	printf '\nexport ASDF_DIR="$HOME/.config/asdf"' >> $HOME/.config/zsh/.zshrc
+	printf '\nexport ASDF_DATA_DIR="$HOME/.local/state/asdf"' >> $HOME/.config/zsh/.zshrc
+	printf '\nexport ASDF_DEFAULT_TOOL_VERSIONS_FILENAME=".config/asdf/.tool-versions"' >> $HOME/.config/zsh/.zshrc
+	printf '\n. $HOME/.config/asdf/asdf.sh' >> $HOME/.config/zsh/.zshrc
+
+	# Adding ASDF completions to zshrc
+	printf '\n\n# append ASDF completions to fpath\nfpath=(${ASDF_DIR}/completions $fpath)\n# initialise completions with ZSH compinit\nautoload -Uz compinit && compinit\n' >> $HOME/.config/zsh/.zshrc
+
+	# ASDF and plugins installation
+	git clone https://github.com/asdf-vm/asdf.git $ASDF_DIR --branch v0.11.3
+	. $HOME/.config/asdf/asdf.sh
+	asdf plugin add nodejs && asdf install nodejs latest:20 && asdf global nodejs latest:20
+	asdf plugin add shellcheck && asdf install shellcheck latest && asdf global shellcheck latest
+
 
 	# To search Docker images on docker.io with Podman without using full image link
 	sudo mkdir -p /etc/containers/registries.conf.d
