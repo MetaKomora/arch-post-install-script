@@ -7,6 +7,9 @@ function printMessage() {
 function initialSystemSetup() {
 	printMessage "$1"
 	
+	# Enable network time synchronization
+	sudo timedatectl set-ntp true
+
 	# Change mirrorlist
 	sudo pacman -Syyu reflector --noconfirm --needed
 	sudo reflector --country Sweden,United_States --protocol https --latest 5 --save /etc/pacman.d/mirrorlist
@@ -165,6 +168,8 @@ function installPrograms() {
 	sudo flatpak override --filesystem=home org.telegram.desktop
 	# Grants access to themes and icons inside $HOME directory to set the GTK theme but without forcing it
 	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0
+	# Grants MPV access to XCURSOR_PATH environment variable to use cursor theme
+	sudo flatpak override --env=XCURSOR_PATH=~/.icons io.mpv.Mpv
 
 	# If the selected desktop environment session type is Wayland, then enable wayland support on Firefox
 	if [ "$isWayland" = true ]; then
