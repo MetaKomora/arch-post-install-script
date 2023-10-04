@@ -69,7 +69,6 @@ function desktopEnvironmentSetup() {
 		printMessage "You choose $desktopEnvironment. Installing environment"
 		sudo pacman -S gdm gnome-control-center gnome-tweaks nautilus wl-clipboard --noconfirm --needed
 		sudo systemctl enable gdm
-		isWayland=true
 
 		# Set keyboard layout
 		gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br')]"
@@ -121,7 +120,6 @@ function desktopEnvironmentSetup() {
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
 		sudo pacman -S sway swaybg waybar rofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --noconfirm --needed
-		isWayland=true
 
 		# Some Wayland programs reads the current desktop variable to identify sway properly
 		printf "export XDG_CURRENT_DESKTOP=sway\n" >> $HOME/.config/zsh/.zshenv
@@ -160,9 +158,9 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S polkit-gnome kitty aria2 podman-compose podman-docker neofetch btop gnome-disk-utility thunderbird-i18n-pt-br zsh bat lsd inxi gdu yt-dlp libva-intel-driver noto-fonts noto-fonts-cjk noto-fonts-emoji ttf-jetbrains-mono-nerd starship gvfs-mtp android-tools ffmpegthumbnailer file-roller xdg-utils xdg-user-dirs rsync stow man-db yad jq glow --noconfirm --needed
+	sudo pacman -S android-tools aria2 bat btop ffmpegthumbnailer file-roller gdu glow gnome-disk-utility gvfs-mtp inxi jq libva-intel-driver lsd man-db neofetch noto-fonts noto-fonts-cjk noto-fonts-emoji podman-compose podman-docker polkit-gnome rsync starship stow ttf-jetbrains-mono-nerd xdg-user-dirs xdg-utils yad yt-dlp zsh --noconfirm --needed
 	
-	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe freetube io.mpv.Mpv pavucontrol foliate eyedropper insomnia kooha com.valvesoftware.Steam minetest -y
+	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper insomnia kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
 	
 	# Grants Telegram access to $HOME directory to be able to send files in-app
 	sudo flatpak override --filesystem=home org.telegram.desktop
@@ -171,10 +169,9 @@ function installPrograms() {
 	# Grants MPV access to XCURSOR_PATH environment variable to use cursor theme
 	sudo flatpak override --env=XCURSOR_PATH=~/.icons io.mpv.Mpv
 
-	# If the selected desktop environment session type is Wayland, then enable wayland support on Firefox
-	if [ "$isWayland" = true ]; then
-		sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.firefox
-	fi
+	# Enable Wayland support on Firefox and Thunderbird
+	sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.firefox
+	sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.Thunderbird
 	
 	
 }
@@ -243,12 +240,6 @@ function userEnvironmentSetup() {
 	# Cleanup
 	rm -rf adw-gtk3v*.tar.xz Tela-circle-icon-theme Bibata-Modern-Ice.tar.gz .npm
 	sudo pacman -Rn gnu-free-fonts --noconfirm
-	
-	# Prevents xdg-utils bug which it doesn't open files with Micro or Neovim on Kitty
-	ln -s /usr/bin/kitty $HOME/.local/bin/xterm
-
-	# Set Kitty theme
-	kitty +kitten themes "Dark One Nuanced"
 
 	# Change shell to ZSH
 	chsh -s /bin/zsh
