@@ -62,103 +62,69 @@ function setVariables() {
 	}
 }
 
-function desktopEnvironmentSetup() {
+function desktopEnvironmentInstall() {
 	printMessage "$1"
 
 	[[ $desktopEnvironment == "gnome" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pacman -S gdm gnome-control-center gnome-tweaks nautilus wl-clipboard --noconfirm --needed
+		sudo pacman -S gdm gnome-control-center gnome-tweaks wl-clipboard --noconfirm --needed
 		sudo systemctl enable gdm
-
-		# Set keyboard layout
-		gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br')]"
-
-		# Font Configuration
-		gsettings set org.gnome.desktop.interface font-name 'Noto Sans 11'
-		gsettings set org.gnome.desktop.interface document-font-name 'Noto Sans 11'
-		gsettings set org.gnome.desktop.interface monospace-font-name 'Noto Sans Mono 10'
-		gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Noto Sans Bold 11'
-
-		# Set themes
-		gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
-		gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dark'
-		gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
-		gsettings set org.gnome.desktop.wm.preferences theme "adw-gtk3-dark"
-
-		# Mouse and Touchpad configurations
-		gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
-		gsettings set org.gnome.desktop.peripherals.touchpad speed 0.85
-		gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
-		gsettings set org.gnome.desktop.peripherals.mouse speed 0.5
-
-		# Open Nautilus maximized
-		gsettings set org.gnome.nautilus.window-state maximized true
-
-		# Set FileChooser configurations
-		gsettings set org.gtk.Settings.FileChooser window-size "(1100, 670)"
-		gsettings set org.gtk.Settings.FileChooser sort-directories-first true
-		gsettings set org.gtk.Settings.FileChooser show-hidden true
-		gsettings set org.gtk.gtk4.Settings.FileChooser window-size "(1100, 670)"
-		gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
-		gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
-
-		# Set 4 static workspaces
-		gsettings set org.gnome.mutter dynamic-workspaces false
-		gsetinggs set org.gnome.desktop.wm.preferences num-workspaces 4
-
-		# alt+tab switch between programs only on current workspace
-		gsettings set org.gnome.shell.app-switcher current-workspace-only true
-
-		# Set keyboard shortcuts to workspaces
-		gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-1 ['<Shift><Super>exclam']
-		gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-2 ['<Shift><Super>at']
-		gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-3 ['<Shift><Super>numbersign']
-		gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-4 ['<Shift><Super>dollar']
-		gsettings set org.gnome.desktop.wm.keybindings show-desktop ['<Primary><Alt>d']
 	}
 
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pacman -S sway swaybg waybar rofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr --noconfirm --needed
-
-		# Some Wayland programs reads the current desktop variable to identify sway properly
-		printf "export XDG_CURRENT_DESKTOP=sway\n" >> $HOME/.config/zsh/.zshenv
-
-		# Remove minimize, maximize and close buttons from programs with CSD
-		gsettings set org.gnome.desktop.wm.preferences button-layout ""
-	}
-
-	[[ $desktopEnvironment != "gnome" ]] && {
-		sudo pacman -S ly thunar-volman thunar-archive-plugin tumbler --noconfirm --needed
-
-		# Enable ly display manager and disable pcspeaker sound on boot when using it
+		sudo pacman -S sway swaybg waybar rofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
 		sudo systemctl enable ly
+
+		# Disable pcspeaker sound on boot when using ly display manager
 		echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf
-
-		sudo pacman -Rn xdg-desktop-portal-gnome --noconfirm
-
-		# Open new Thunar instances as tabs, view location bar as buttons, hide menu bar
-		xfconf-query -c thunar -n -p /misc-open-new-window-as-tab -t bool -s true
-		xfconf-query -c thunar -n -p /last-location-bar -t string -s "ThunarLocationButtons"
-		xfconf-query -c thunar -n -p /last-menubar-visible -t bool -s false
-
-		gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-		
-		# Set FileChooser configurations
-		gsettings set org.gtk.Settings.FileChooser window-size "(1100, 670)"
-		gsettings set org.gtk.Settings.FileChooser sort-directories-first true
-		gsettings set org.gtk.Settings.FileChooser show-hidden true
-		gsettings set org.gtk.gtk4.Settings.FileChooser window-size "(1100, 670)"
-		gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
-		gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
-
 	}
+}
+
+function desktopEnvironmentSetup() {
+    printMessage "$1"
+
+    [[ $desktopEnvironment == "gnome" ]] && {
+        # Set keyboard layout
+        gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br')]"
+
+        # Mouse and Touchpad configurations
+        gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
+        gsettings set org.gnome.desktop.peripherals.touchpad speed 0.85
+        gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
+        gsettings set org.gnome.desktop.peripherals.mouse speed 0.5
+
+        # Open Nautilus maximized
+        gsettings set org.gnome.nautilus.window-state maximized true
+
+        # Set 4 static workspaces
+        gsettings set org.gnome.mutter dynamic-workspaces false
+        gsetinggs set org.gnome.desktop.wm.preferences num-workspaces 4
+
+        # alt+tab switch between programs only on current workspace
+        gsettings set org.gnome.shell.app-switcher current-workspace-only true
+
+        # Set keyboard shortcuts to workspaces
+        gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-1 ['<Shift><Super>exclam']
+        gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-2 ['<Shift><Super>at']
+        gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-3 ['<Shift><Super>numbersign']
+        gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-4 ['<Shift><Super>dollar']
+        gsettings set org.gnome.desktop.wm.keybindings show-desktop ['<Primary><Alt>d']
+    }
+
+    [[ $desktopEnvironment == "sway" ]] && {
+        # Some Wayland programs reads the current desktop variable to identify sway properly
+        printf "export XDG_CURRENT_DESKTOP=sway\n" >> $HOME/.config/zsh/.zshenv
+
+        # Remove minimize, maximize and close buttons from programs with CSD
+        gsettings set org.gnome.desktop.wm.preferences button-layout ""
+    }
 }
 
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S android-tools aria2 bat btop ffmpegthumbnailer file-roller gdu glow gnome-disk-utility gvfs-mtp inxi jq libva-intel-driver lsd man-db neofetch noto-fonts noto-fonts-cjk noto-fonts-emoji podman-compose podman-docker polkit-gnome rsync starship stow ttf-jetbrains-mono-nerd xdg-user-dirs xdg-utils yad yt-dlp zsh --noconfirm --needed
+	sudo pacman -S android-tools aria2 bat btop ffmpegthumbnailer file-roller flatpak gdu glow gnome-disk-utility gvfs-mtp inxi jq libva-intel-driver lsd man-db nautilus neofetch noto-fonts noto-fonts-cjk noto-fonts-emoji podman-compose podman-docker polkit-gnome rsync starship stow ttf-jetbrains-mono-nerd xdg-user-dirs xdg-utils yad yt-dlp zsh --noconfirm --needed
 	
 	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper insomnia kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
 	
@@ -237,6 +203,26 @@ function userEnvironmentSetup() {
 	mv Bibata-Modern-Ice $HOME/.icons
 	cd $HOME
 
+	# Themes configuration
+	gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
+	gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dark'
+	gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
+	gsettings set org.gnome.desktop.wm.preferences theme "adw-gtk3-dark"
+
+	# Font Configuration
+	gsettings set org.gnome.desktop.interface font-name 'Noto Sans 11'
+	gsettings set org.gnome.desktop.interface document-font-name 'Noto Sans 11'
+	gsettings set org.gnome.desktop.interface monospace-font-name 'Noto Sans Mono 10'
+	gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Noto Sans Bold 11'
+
+	# GTK FileChooser configuration
+	gsettings set org.gtk.Settings.FileChooser window-size "(1100, 670)"
+	gsettings set org.gtk.Settings.FileChooser sort-directories-first true
+	gsettings set org.gtk.Settings.FileChooser show-hidden true
+	gsettings set org.gtk.gtk4.Settings.FileChooser window-size "(1100, 670)"
+	gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
+	gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
+
 	# Cleanup
 	rm -rf adw-gtk3v*.tar.xz Tela-circle-icon-theme Bibata-Modern-Ice.tar.gz .npm
 	sudo pacman -Rn gnu-free-fonts --noconfirm
@@ -279,13 +265,15 @@ initialSystemSetup "Change mirrors branch if needed, upgrade system and installs
 
 setVariables
 
-desktopEnvironmentSetup "Installing Desktop Environment"
+desktopEnvironmentInstall "Installing Desktop Environment"
 
 installPrograms "Installing Programs"
 
 devEnvironmentSetup "Installing development tools"
 
 userEnvironmentSetup "Setting default applications, installing themes and making cleanups"
+
+desktopEnvironmentSetup "Setting specific environment configurations"
 
 enableZRAM "Enabling and configuring ZRAM"
 
