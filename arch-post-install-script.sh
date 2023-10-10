@@ -118,6 +118,10 @@ function desktopEnvironmentSetup() {
 
         # Remove minimize, maximize and close buttons from programs with CSD
         gsettings set org.gnome.desktop.wm.preferences button-layout ""
+
+        # Use xdg-desktop-portal-gtk for all portal interfaces on Sway, except for Screencast and Screenshot
+        mkdir ~/.config/xdg-desktop-portal
+        printf "[preferred]\n# use xdg-desktop-portal-gtk for every portal interface\ndefault=gtk\n# except for the xdg-desktop-portal-wlr supplied interfaces\norg.freedesktop.impl.portal.Screencast=wlr\norg.freedesktop.impl.portal.Screenshot=wlr" >> ~/.config/xdg-desktop-portal/portals.conf
     }
 }
 
@@ -128,8 +132,6 @@ function installPrograms() {
 	
 	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper insomnia kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
 	
-	# Grants Telegram access to $HOME directory to be able to send files in-app
-	sudo flatpak override --filesystem=home org.telegram.desktop
 	# Grants access to themes and icons inside $HOME directory to set the GTK theme but without forcing it
 	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0
 	# Grants MPV access to XCURSOR_PATH environment variable to use cursor theme
@@ -198,8 +200,8 @@ function userEnvironmentSetup() {
 	mv adw-gtk3 adw-gtk3-dark $HOME/.themes
 	git clone https://github.com/vinceliuice/Tela-circle-icon-theme
 	cd Tela-circle-icon-theme; ./install.sh -d $HOME/.icons; cd ../
-	curl -L -O "https://github.com/ful1e5/Bibata_Cursor/releases/latest/download/Bibata-Modern-Ice.tar.gz"
-	tar -xvf Bibata-Modern-Ice.tar.gz
+	curl -L -O "https://github.com/ful1e5/Bibata_Cursor/releases/latest/download/Bibata-Modern-Ice.tar.xz"
+	tar -xvf Bibata-Modern-Ice.tar.xz
 	mv Bibata-Modern-Ice $HOME/.icons
 	cd $HOME
 
@@ -289,19 +291,13 @@ enableZRAM "Enabling and configuring ZRAM"
 
 printMessage "Please, reboot system to apply changes"
 
-############################
-##### Optional programs ####
-############################
-# alacarte azote fsearch-git catfish mlocate exfat-utils usbutils deadd-notification-center-bin xfce4-clipman-plugin copyq polybar calibre zeal nnn bat lsd cmus figlet opus-tools pulseaudio-alsa otf-font-awesome gpick gcolor3 audacity inxi mangohud lib32-mangohud ecm-tools lutris wine-staging discord kdeconnect udiskie gparted dmidecode gdu baobab gnome-font-viewer dbeaver dupeguru screenkey soundconverter p7zip-full unrar selene-media-converter timeshift xdman persepolis deluge-gtk ytfzf-git fzf ueberzug zenity hdsentinel font-manager gucharmap nwg-look-bin wmctrl gnome-epub-thumbnailer wf-recorder qt5ct qt5-styleplugins hardinfo appimagelauncher
+
+# Some useful packages list:
+
+# azote exfat-utils usbutils copyq nnn cmus opus-tools otf-font-awesome inxi ecm-tools kdeconnect dmidecode baobab dupeguru p7zip-full unrar timeshift ytfzf hdsentinel nwg-look-bin gnome-epub-thumbnailer wf-recorder qt5ct qt5-styleplugins
 
 
 # More information:
 
-# https://wiki.archlinux.org/index.php/Improving_performance#Zram_or_zswap
-# https://unix.stackexchange.com/questions/453585/shell-script-to-comment-and-uncomment-a-line-in-file
-# https://linuxize.com/post/how-to-add-directory-to-path-in-linux/
-# https://diolinux.com.br/2019/09/remover-ruido-do-microfone-no-linux.html
-# https://www.linuxuprising.com/2020/09/how-to-enable-echo-noise-cancellation.html
-# https://wiki.manjaro.org/index.php/Set_all_Qt_app%27s_to_use_GTK%2B_font_%26_theme_settings
-# https://unix.stackexchange.com/questions/6345/how-can-i-get-distribution-name-and-version-number-in-a-simple-shell-script
+# https://wiki.archlinux.org/title/Zram
 # https://gist.github.com/jwebcat/5122366
