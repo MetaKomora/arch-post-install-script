@@ -226,7 +226,7 @@ function userEnvironmentSetup() {
 	gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
 
 	# Cleanup
-	rm -rf adw-gtk3v*.tar.xz Tela-circle-icon-theme Bibata-Modern-Ice.tar.gz .npm
+	rm -rf adw-gtk3v*.tar.xz Tela-circle-icon-theme Bibata-Modern-Ice.tar.xz .npm
 	sudo pacman -Rn gnu-free-fonts --noconfirm
 
 	# Change shell to ZSH
@@ -285,7 +285,7 @@ enableZRAM "Enabling and configuring ZRAM"
 	sudo mkdir "$snapshotsdir"/{@,@home}
 	sudo btrfs subvolume snapshot / "$snapshotsdir"/@/post_install__-__"$(date '+%d-%m-%Y_-_%R')"
 	sudo btrfs subvolume snapshot /home "$snapshotsdir"/@home/post_install__-__"$(date '+%d-%m-%Y_-_%R')"
-	sudo update-grub
+	sudo grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 
