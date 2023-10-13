@@ -73,7 +73,7 @@ function desktopEnvironmentInstall() {
 
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pacman -S sway swaybg waybar rofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
+		sudo pacman -S sway swaybg waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
 		sudo systemctl enable ly
 
 		# Disable pcspeaker sound on boot when using ly display manager
@@ -121,14 +121,14 @@ function desktopEnvironmentSetup() {
 
         # Use xdg-desktop-portal-gtk for all portal interfaces on Sway, except for Screencast and Screenshot
         mkdir ~/.config/xdg-desktop-portal
-        printf "[preferred]\n# use xdg-desktop-portal-gtk for every portal interface\ndefault=gtk\n# except for the xdg-desktop-portal-wlr supplied interfaces\norg.freedesktop.impl.portal.Screencast=wlr\norg.freedesktop.impl.portal.Screenshot=wlr" >> ~/.config/xdg-desktop-portal/portals.conf
+        printf "[preferred]\n# use xdg-desktop-portal-gtk for every portal interface\ndefault=gtk\n# except for the xdg-desktop-portal-wlr supplied interfaces\norg.freedesktop.impl.portal.ScreenCast=wlr\norg.freedesktop.impl.portal.Screenshot=wlr" >> ~/.config/xdg-desktop-portal/portals.conf
     }
 }
 
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S android-tools aria2 bat btop ffmpegthumbnailer file-roller flatpak gdu glow gnome-disk-utility gvfs-mtp inxi jq libva-intel-driver lsd man-db nautilus neofetch noto-fonts noto-fonts-cjk noto-fonts-emoji podman-compose podman-docker polkit-gnome rsync starship stow ttf-jetbrains-mono-nerd xdg-user-dirs xdg-utils yad yt-dlp zsh --noconfirm --needed
+	sudo pacman -S android-tools aria2 bat btop ffmpegthumbnailer file-roller flatpak gdu glow gnome-disk-utility gvfs-mtp inxi jq libva-intel-driver lsd man-db nautilus neofetch noto-fonts noto-fonts-cjk noto-fonts-emoji podman-compose podman-docker polkit-gnome rsync starship stow syncthing ttf-jetbrains-mono-nerd xdg-user-dirs xdg-utils yad yt-dlp zsh --noconfirm --needed
 	
 	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper insomnia kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
 	
