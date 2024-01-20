@@ -68,7 +68,7 @@ function desktopEnvironmentInstall() {
 
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pacman -S sway swaybg waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
+		sudo pacman -S sway swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
 		sudo systemctl enable ly
 
 		# Disable pcspeaker sound on boot when using ly display manager
@@ -123,19 +123,17 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S android-tools aria2 bat btop ffmpegthumbnailer file-roller flatpak gdu glow gnome-disk-utility gvfs-mtp inxi jq libva-intel-driver lsd man-db nautilus neofetch noto-fonts noto-fonts-cjk noto-fonts-emoji podman-compose podman-docker polkit-gnome rsync starship stow syncthing ttf-jetbrains-mono-nerd xdg-user-dirs xdg-utils yad yt-dlp zsh --noconfirm --needed
+	sudo pacman -S android-tools aria2 bat btop ffmpegthumbnailer flatpak fzf gdu glow gnome-epub-thumbnailer gvfs-mtp inxi jq libnotify libva-mesa-driver lsd man-db mesa-vdpau nautilus neofetch noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome podman-compose podman-docker polkit-gnome rsync starship stow syncthing ttf-jetbrains-mono-nerd vulkan-radeon webp-pixbuf-loader xdg-user-dirs xdg-utils yad yt-dlp zoxide zsh --noconfirm --needed
 	
-	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper insomnia kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
+	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium copyq org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper insomnia kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
 	
 	# Grants access to themes and icons inside $HOME directory to set the GTK theme but without forcing it
 	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0
 	# Grants MPV access to XCURSOR_PATH environment variable to use cursor theme
 	sudo flatpak override --env=XCURSOR_PATH=~/.icons io.mpv.Mpv
 
-	# Enable Wayland support on Firefox and Thunderbird
-	sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.firefox
+	# Enable Wayland support on Thunderbird
 	sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.Thunderbird
-	
 	
 }
 
