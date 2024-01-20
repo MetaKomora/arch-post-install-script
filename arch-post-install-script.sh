@@ -12,7 +12,7 @@ function initialSystemSetup() {
 
 	# Change mirrorlist
 	sudo pacman -Syyu reflector --noconfirm --needed
-	sudo reflector --country Sweden,United_States --protocol https --latest 5 --save /etc/pacman.d/mirrorlist
+	sudo reflector --country Sweden,United_States,Canada --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
 	# Uncommenting some options on Pacman config
 	sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' -e 's/#ParallelDownloads = 5/ParallelDownloads = 20\nILoveCandy/' /etc/pacman.conf
@@ -48,11 +48,6 @@ function initialSystemSetup() {
 }
 
 function setVariables() {
-	snapshotsdir=""
-	
-	printf "\nPlease, insert your snapshots directory (leave empty to skip snapshots creation):\n"
-	read snapshotsdir
-
 	printf "\nPlease, insert the desired desktop environment: xfce, i3, sway or gnome (default sway)\n"
 	read desktopEnvironment
 
@@ -278,16 +273,6 @@ userEnvironmentSetup "Setting default applications, installing themes and making
 desktopEnvironmentSetup "Setting specific environment configurations"
 
 enableZRAM "Enabling and configuring ZRAM"
-
-
-# If there is a BTRFS snapshots subvolume dir in the variable, create a snapshot and update GRUB
-[[ -d "$snapshotsdir" ]] && {
-	sudo mkdir "$snapshotsdir"/{@,@home}
-	sudo btrfs subvolume snapshot / "$snapshotsdir"/@/post_install__-__"$(date '+%d-%m-%Y_-_%R')"
-	sudo btrfs subvolume snapshot /home "$snapshotsdir"/@home/post_install__-__"$(date '+%d-%m-%Y_-_%R')"
-	sudo grub-mkconfig -o /boot/grub/grub.cfg
-}
-
 
 printMessage "Please, reboot system to apply changes"
 
