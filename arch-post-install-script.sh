@@ -44,21 +44,23 @@ function initialSystemSetup() {
 	printf 'export XDG_DATA_HOME=$HOME/.local/share\n' >> $HOME/.config/zsh/.zshenv
 	printf 'export HISTFILE=$HOME/.config/zsh/zhistory\n' >> $HOME/.config/zsh/.zshenv
 	printf 'export ZIM_HOME=$HOME/.config/zim\n' >> $HOME/.config/zsh/.zshenv
+
+	# Disable pcspeaker sound on boot
+	echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf
 	
 }
 
-function setVariables() {
-	printf "\nPlease, insert the desired desktop environment: xfce, i3, sway or gnome (default sway)\n"
+function desktopEnvironmentInstall() {
+	printMessage "$1"
+
+	printf "\nPlease, insert the desired desktop environment: sway, gnome or hyprland (default sway)\n"
 	read desktopEnvironment
 
 	[[ -z $desktopEnvironment ]] && {
 		#If nothing is passed, default to sway
 		desktopEnvironment="sway"
 	}
-}
 
-function desktopEnvironmentInstall() {
-	printMessage "$1"
 
 	[[ $desktopEnvironment == "gnome" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
@@ -68,12 +70,15 @@ function desktopEnvironmentInstall() {
 
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pacman -S sway swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
+		sudo pacman -S sway swaybg swaylock waybar wofi grim slurp swappy mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
 		sudo systemctl enable ly
-
-		# Disable pcspeaker sound on boot when using ly display manager
-		echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf
 	}
+
+    [[ $desktopEnvironment == "hyprland" ]] && {
+        printMessage "You choose $desktopEnvironment. Installing environment"
+        sudo pacman -S hyprland swaybg swaylock waybar wofi grim slurp swappy mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland --noconfirm --needed
+    }
+
 }
 
 function desktopEnvironmentSetup() {
@@ -160,7 +165,7 @@ function devEnvironmentSetup() {
 	printf '\n\n# append ASDF completions to fpath\nfpath=(${ASDF_DIR}/completions $fpath)\n# initialise completions with ZSH compinit\nautoload -Uz compinit && compinit\n' >> $HOME/.config/zsh/.zshrc
 
 	# ASDF and plugins installation
-	git clone https://github.com/asdf-vm/asdf.git $ASDF_DIR --branch v0.11.3
+	git clone https://github.com/asdf-vm/asdf.git $ASDF_DIR --branch v0.14.0
 	. $HOME/.config/asdf/asdf.sh
 	asdf plugin add nodejs && asdf install nodejs latest:20 && asdf global nodejs latest:20
 	asdf plugin add shellcheck && asdf install shellcheck latest && asdf global shellcheck latest
@@ -257,8 +262,6 @@ function enableZRAM() {
 # --------------------------------------------------------------------------------------------- #
 
 initialSystemSetup "Change mirrors branch if needed, upgrade system and installs basic programs"
-
-setVariables
 
 desktopEnvironmentInstall "Installing Desktop Environment"
 
