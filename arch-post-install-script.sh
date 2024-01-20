@@ -73,11 +73,10 @@ function desktopEnvironmentInstall() {
 		sudo pacman -S sway swaybg swaylock waybar wofi grim slurp swappy mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
 		sudo systemctl enable ly
 	}
-
-    [[ $desktopEnvironment == "hyprland" ]] && {
-        printMessage "You choose $desktopEnvironment. Installing environment"
-        sudo pacman -S hyprland swaybg swaylock waybar wofi grim slurp swappy mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland --noconfirm --needed
-    }
+	[[ $desktopEnvironment == "hyprland" ]] && {
+	    printMessage "You choose $desktopEnvironment. Installing environment"
+	    sudo pacman -S hyprland swaybg swaylock waybar wofi grim slurp swappy mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland --noconfirm --needed
+	}
 
 }
 
@@ -115,9 +114,6 @@ function desktopEnvironmentSetup() {
     [[ $desktopEnvironment == "sway" ]] && {
         # Some Wayland programs reads the current desktop variable to identify sway properly
         printf "export XDG_CURRENT_DESKTOP=sway\n" >> $HOME/.config/zsh/.zshenv
-
-        # Remove minimize, maximize and close buttons from programs with CSD
-        gsettings set org.gnome.desktop.wm.preferences button-layout ""
 
         # Use xdg-desktop-portal-gtk for all portal interfaces on Sway, except for Screencast and Screenshot
         mkdir ~/.config/xdg-desktop-portal
@@ -187,6 +183,7 @@ function userEnvironmentSetup() {
 	xdg-mime default nvim.desktop application/x-shellscript
 	xdg-mime default org.gnome.Loupe.desktop image/png
 	xdg-mime default org.gnome.Loupe.desktop image/jpeg
+	xdg-mime default org.gnome.Loupe.desktop image/webp
 	xdg-mime default org.gnome.Evince.desktop application/pdf
 	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/http
 	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/https
@@ -225,6 +222,7 @@ function userEnvironmentSetup() {
 
 	# Cleanup
 	rm -rf adw-gtk3v*.tar.xz Tela-circle-icon-theme Bibata-Modern-Ice.tar.xz .npm
+	rm .bashrc .bash_profile .bash_logout .bash_history
 	sudo pacman -Rn gnu-free-fonts --noconfirm
 
 	# Change shell to ZSH
