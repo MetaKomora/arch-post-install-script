@@ -70,12 +70,13 @@ function desktopEnvironmentInstall() {
 
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pacman -S sway swaybg swaylock waybar wofi grim slurp swappy mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
+		sudo pacman -S sway swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
 		sudo systemctl enable ly
 	}
+
 	[[ $desktopEnvironment == "hyprland" ]] && {
 	    printMessage "You choose $desktopEnvironment. Installing environment"
-	    sudo pacman -S hyprland swaybg swaylock waybar wofi grim slurp swappy mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland --noconfirm --needed
+	    sudo pacman -S hyprland swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland --noconfirm --needed
 	}
 
 }
@@ -110,28 +111,23 @@ function desktopEnvironmentSetup() {
         gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-4 ['<Shift><Super>dollar']
         gsettings set org.gnome.desktop.wm.keybindings show-desktop ['<Primary><Alt>d']
     }
-
-    [[ $desktopEnvironment == "sway" ]] && {
-        # Some Wayland programs reads the current desktop variable to identify sway properly
-        printf "export XDG_CURRENT_DESKTOP=sway\n" >> $HOME/.config/zsh/.zshenv
-
-        # Use xdg-desktop-portal-gtk for all portal interfaces on Sway, except for Screencast and Screenshot
-        mkdir ~/.config/xdg-desktop-portal
-        printf "[preferred]\n# use xdg-desktop-portal-gtk for every portal interface\ndefault=gtk\n# except for the xdg-desktop-portal-wlr supplied interfaces\norg.freedesktop.impl.portal.ScreenCast=wlr\norg.freedesktop.impl.portal.Screenshot=wlr" >> ~/.config/xdg-desktop-portal/portals.conf
-    }
 }
 
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S android-tools aria2 bat btop ffmpegthumbnailer flatpak fzf gdu glow gnome-epub-thumbnailer gvfs-mtp inxi jq libnotify libva-mesa-driver lsd man-db mesa-vdpau nautilus neofetch noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome podman-compose podman-docker polkit-gnome rsync starship stow syncthing ttf-jetbrains-mono-nerd vulkan-radeon webp-pixbuf-loader xdg-user-dirs xdg-utils yad yt-dlp zoxide zsh --noconfirm --needed
+	sudo pacman -S aria2 bat btop ffmpegthumbnailer flatpak fzf gnome-epub-thumbnailer gvfs-mtp inxi jq libnotify libva-mesa-driver lsd man-db nautilus neofetch noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome polkit-gnome rsync starship stow ttf-jetbrains-mono-nerd vulkan-radeon webp-pixbuf-loader xdg-user-dirs xdg-utils yad yt-dlp zoxide zsh --noconfirm --needed
 	
-	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium copyq org.telegram.desktop webcord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper insomnia kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
+	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium copyq org.telegram.desktop discord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper insomnia kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
 	
 	# Grants access to themes and icons inside $HOME directory to set the GTK theme but without forcing it
 	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0
+	
 	# Grants MPV access to XCURSOR_PATH environment variable to use cursor theme
 	sudo flatpak override --env=XCURSOR_PATH=~/.icons io.mpv.Mpv
+	
+	# Grants session bus access to Freetube to be able to open videos on MPV
+	sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
 
 	# Enable Wayland support on Thunderbird
 	sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.Thunderbird
@@ -165,12 +161,6 @@ function devEnvironmentSetup() {
 	. $HOME/.config/asdf/asdf.sh
 	asdf plugin add nodejs && asdf install nodejs latest:20 && asdf global nodejs latest:20
 	asdf plugin add shellcheck && asdf install shellcheck latest && asdf global shellcheck latest
-
-
-	# To search Docker images on docker.io with Podman without using full image link
-	sudo mkdir -p /etc/containers/registries.conf.d
-	echo 'unqualified-search-registries=["docker.io"]' | sudo tee -a /etc/containers/registries.conf.d/docker.conf
-	
 }
 
 function userEnvironmentSetup() {
@@ -178,9 +168,6 @@ function userEnvironmentSetup() {
 
 	# Setting XDG directories and some default applications
 	xdg-user-dirs-update
-	xdg-mime default nvim.desktop text/plain
-	xdg-mime default nvim.desktop text/markdown
-	xdg-mime default nvim.desktop application/x-shellscript
 	xdg-mime default org.gnome.Loupe.desktop image/png
 	xdg-mime default org.gnome.Loupe.desktop image/jpeg
 	xdg-mime default org.gnome.Loupe.desktop image/webp
