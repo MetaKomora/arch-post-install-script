@@ -116,9 +116,9 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S aria2 bat btop ffmpegthumbnailer flatpak fzf gnome-epub-thumbnailer gvfs-mtp inxi jq libnotify libva-mesa-driver lsd man-db nautilus neofetch noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome polkit-gnome rsync starship stow ttf-jetbrains-mono-nerd vulkan-radeon webp-pixbuf-loader xdg-user-dirs xdg-utils yad yt-dlp zoxide zsh --noconfirm --needed
+	sudo pacman -S aria2 bat btop cliphist fastfetch ffmpegthumbnailer flatpak fzf gnome-epub-thumbnailer gvfs-mtp inxi jq libnotify libva-mesa-driver lsd man-db nautilus noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome polkit-gnome power-profiles-daemon rsync starship stow ttf-jetbrains-mono-nerd vulkan-radeon webp-pixbuf-loader xdg-user-dirs xdg-utils yad yt-dlp zoxide zsh --noconfirm --needed
 	
-	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium copyq org.telegram.desktop discord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper insomnia kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
+	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop discord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper postman kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
 	
 	# Grants access to themes and icons inside $HOME directory to set the GTK theme but without forcing it
 	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0
@@ -212,6 +212,9 @@ function userEnvironmentSetup() {
 	rm .bashrc .bash_profile .bash_logout .bash_history
 	sudo pacman -Rn gnu-free-fonts --noconfirm
 
+	# Increase map count for game compatibility
+	echo "vm.max_map_count = 1048576" | sudo tee -a /etc/sysctl.d/80-gamecompatibility.conf
+
 	# Change shell to ZSH
 	chsh -s /bin/zsh
 	sudo chsh -s /bin/zsh
@@ -265,7 +268,7 @@ printMessage "Please, reboot system to apply changes"
 
 # Some useful packages list:
 
-# azote exfat-utils usbutils copyq nnn cmus opus-tools otf-font-awesome inxi ecm-tools kdeconnect dmidecode baobab dupeguru p7zip-full unrar timeshift ytfzf hdsentinel nwg-look-bin gnome-epub-thumbnailer wf-recorder qt5ct qt5-styleplugins
+# azote exfat-utils usbutils copyq yazi gdu cmus opus-tools otf-font-awesome inxi ecm-tools kdeconnect dmidecode dupeguru p7zip-full unrar timeshift ytfzf hdsentinel nwg-look-bin wf-recorder qt5ct qt5-styleplugins
 
 
 # More information:
