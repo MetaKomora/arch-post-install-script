@@ -116,18 +116,21 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S aria2 bat btop cliphist fastfetch ffmpegthumbnailer flatpak fzf gnome-epub-thumbnailer gvfs-mtp inxi jq libnotify libva-mesa-driver lsd man-db nautilus noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome polkit-gnome power-profiles-daemon rsync starship stow ttf-jetbrains-mono-nerd vulkan-radeon webp-pixbuf-loader xdg-user-dirs xdg-utils yad yt-dlp zoxide zsh --noconfirm --needed
+	sudo pacman -S aria2 bat btop fastfetch ffmpegthumbnailer flatpak fzf gnome-epub-thumbnailer gvfs-mtp inxi jq libnotify libva-mesa-driver lsd man-db nautilus noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome polkit-gnome power-profiles-daemon rsync starship stow ttf-jetbrains-mono-nerd vulkan-radeon webp-pixbuf-loader xdg-user-dirs xdg-utils yad yt-dlp zoxide zsh --noconfirm --needed
 	
-	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop discord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper postman kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
+	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium copyq org.telegram.desktop discord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper postman kooha com.raggesilver.BlackBox com.valvesoftware.Steam minetest -y
 	
-	# Grants access to themes and icons inside $HOME directory to set the GTK theme but without forcing it
+	# Grants Flatpak access to themes and icons inside $HOME directory to set the GTK theme
 	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0
 	
 	# Grants MPV access to XCURSOR_PATH environment variable to use cursor theme
 	sudo flatpak override --env=XCURSOR_PATH=~/.icons io.mpv.Mpv
 	
-	# Grants session bus access to Freetube to be able to open videos on MPV
+	# Grants Freetube access to session bus to be able to open videos on MPV
 	sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
+
+	# Makes Copyq open via Xwayland to work properly
+	sudo flatpak override --env=QT_QPA_PLATFORM=xcb com.github.hluk.copyq
 
 	# Enable Wayland support on Thunderbird
 	sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.Thunderbird
@@ -212,9 +215,6 @@ function userEnvironmentSetup() {
 	rm .bashrc .bash_profile .bash_logout .bash_history
 	sudo pacman -Rn gnu-free-fonts --noconfirm
 
-	# Increase map count for game compatibility
-	echo "vm.max_map_count = 1048576" | sudo tee -a /etc/sysctl.d/80-gamecompatibility.conf
-
 	# Change shell to ZSH
 	chsh -s /bin/zsh
 	sudo chsh -s /bin/zsh
@@ -236,10 +236,10 @@ function enableZRAM() {
 	echo 'ACTION=="add", KERNEL=="zram0", ATTR{comp_algorithm}="zstd", ATTR{disksize}="4G", RUN="/usr/bin/mkswap -U clear /dev/%k", TAG+="systemd"' | sudo tee -a /etc/udev/rules.d/99-zram.rules
 	
 	# Add /dev/zram to your fstab
-	echo "/dev/zram0 none swap defaults 0 0" | sudo tee -a /etc/fstab
+	echo "/dev/zram0 none swap defaults,pri=100 0 0" | sudo tee -a /etc/fstab
 	
-	# Alter swappiness priority to 5
-	echo "vm.swappiness = 5" | sudo tee -a /etc/sysctl.d/99-sysctl.conf
+	# Optimizing swap on zram
+	printf "vm.swappiness = 180\nvm.watermark_boost_factor = 0\nvm.watermark_scale_factor = 125\nvm.page-cluster = 0" | sudo tee -a /etc/sysctl.d/99-vm-zram-parameters.conf
 }
 
 
