@@ -17,23 +17,6 @@ function initialSystemSetup() {
 	# Uncommenting some options on Pacman config
 	sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' -e 's/#ParallelDownloads = 5/ParallelDownloads = 20\nILoveCandy/' /etc/pacman.conf
 
-	sudo pacman -Syyu neovim pipewire-pulse wireplumber git brightnessctl --noconfirm --needed
- 
-	# Install yay-bin from AUR
-	printMessage "Do you want install Yay AUR helper?"
-	read answerAUR
-
-	if [[ "$answerAUR" == "y" ]] || [[ "$answerAUR" == "Y" ]]; then {
-	    sudo pacman -S base-devel --noconfirm --needed
-	    cd $HOME
-	    git clone https://aur.archlinux.org/yay-bin.git
-	    cd yay-bin
-	    makepkg -si --noconfirm --needed
-	    cd $HOME
-	    rm -rf yay-bin
-	}
-	fi
-
 	# Making some directories and exporting variables to easy setup later
 	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/{.icons,.themes} $HOME/.var/app
 	sudo mkdir -p /etc/zsh
@@ -70,13 +53,13 @@ function desktopEnvironmentInstall() {
 
 	[[ $desktopEnvironment == "sway" ]] && {
 		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pacman -S sway swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly --noconfirm --needed
+		sudo pacman -S sway swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly pipewire-pulse --noconfirm --needed
 		sudo systemctl enable ly
 	}
 
 	[[ $desktopEnvironment == "hyprland" ]] && {
 	    printMessage "You choose $desktopEnvironment. Installing environment"
-	    sudo pacman -S hyprland swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland --noconfirm --needed
+	    sudo pacman -S hyprland swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland pipewire-pulse --noconfirm --needed
 	}
 
 }
@@ -116,7 +99,22 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S aria2 bat btop fastfetch ffmpegthumbnailer flatpak fzf gnome-epub-thumbnailer gvfs-mtp inxi jq kitty libnotify libva-mesa-driver lsd man-db nautilus noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome polkit-gnome power-profiles-daemon rsync starship stow ttf-jetbrains-mono-nerd vulkan-radeon webp-pixbuf-loader xdg-user-dirs xdg-utils yad yt-dlp zoxide zsh --noconfirm --needed
+	sudo pacman -S aria2 bat brightnessctl btop fastfetch ffmpegthumbnailer flatpak fzf git gnome-epub-thumbnailer gvfs-mtp inxi jq kitty libnotify libva-mesa-driver lsd man-db nautilus neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome polkit-gnome power-profiles-daemon rsync starship stow ttf-jetbrains-mono-nerd vulkan-radeon webp-pixbuf-loader xdg-user-dirs xdg-utils yad yt-dlp zoxide zsh --noconfirm --needed
+
+	# Install yay-bin from AUR
+	printMessage "Do you want install Yay AUR helper?"
+	read answerAUR
+
+	if [[ "$answerAUR" == "y" ]] || [[ "$answerAUR" == "Y" ]]; then {
+        sudo pacman -S base-devel --noconfirm --needed
+        cd $HOME
+        git clone https://aur.archlinux.org/yay-bin.git
+        cd yay-bin
+        makepkg -si --noconfirm --needed
+        cd $HOME
+        rm -rf yay-bin
+    }
+    fi
 	
 	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium copyq org.telegram.desktop com.discordapp.Discord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper postman kooha com.valvesoftware.Steam minetest -y
 	
