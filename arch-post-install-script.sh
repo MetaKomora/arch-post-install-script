@@ -203,10 +203,8 @@ function userEnvironmentSetup() {
 	gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Noto Sans Bold 11'
 
 	# GTK FileChooser configuration
-	gsettings set org.gtk.Settings.FileChooser window-size "(1100, 670)"
 	gsettings set org.gtk.Settings.FileChooser sort-directories-first true
 	gsettings set org.gtk.Settings.FileChooser show-hidden true
-	gsettings set org.gtk.gtk4.Settings.FileChooser window-size "(1100, 670)"
 	gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
 	gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
 
@@ -214,6 +212,12 @@ function userEnvironmentSetup() {
 	rm -rf adw-gtk3v*.tar.xz Tela-circle-icon-theme Bibata-Modern-Ice.tar.xz .npm
 	rm .bashrc .bash_profile .bash_logout .bash_history
 	sudo pacman -Rn gnu-free-fonts --noconfirm
+
+	# Activate conservation mode on Ideapad laptops
+	echo 1 | sudo tee /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode
+
+	# Enable power-profiles-daemon
+	sudo systemctl enable power-profiles-daemon
 
 	# Change shell to ZSH
 	chsh -s /bin/zsh
