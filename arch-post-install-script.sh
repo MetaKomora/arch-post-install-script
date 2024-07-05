@@ -62,9 +62,9 @@ function desktopEnvironmentInstall() {
 
         "sway")
             printMessage "You choose $desktopEnvironment. Installing environment"
-		    sudo pacman -S sway swaybg swaylock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly pipewire-pulse --noconfirm --needed
-		    sudo systemctl enable ly
-		    GTKENV=true
+            sudo pacman -S sway swaybg swaylock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly pipewire-pulse --noconfirm --needed
+            sudo systemctl enable ly
+            GTKENV=true
             ;;
 
         *)
@@ -114,7 +114,7 @@ function installPrograms() {
 
 	if [[ $GTKENV == true ]]; then
 	    sudo pacman -S ffmpegthumbnailer flatpak gnome-epub-thumbnailer libnotify nautilus polkit-gnome --noconfirm --needed
-    fi
+	fi
 	sudo pacman -S aria2 bat brightnessctl btop fastfetch fd fzf git gvfs-mtp inxi jq kitty libva-mesa-driver lsd man-db neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome power-profiles-daemon ripgrep rsync starship stow ttf-jetbrains-mono-nerd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zoxide zsh --noconfirm --needed
 
 	# Install yay-bin from AUR
@@ -122,16 +122,16 @@ function installPrograms() {
 	read answerAUR
 
 	if [[ "$answerAUR" == "y" ]] || [[ "$answerAUR" == "Y" ]]; then {
-        sudo pacman -S base-devel --noconfirm --needed
-        cd $HOME
-        git clone https://aur.archlinux.org/yay-bin.git
-        cd yay-bin
-        makepkg -si --noconfirm --needed
-        cd $HOME
-        rm -rf yay-bin
-    }
-    fi
-	
+	    sudo pacman -S base-devel --noconfirm --needed
+	    cd $HOME
+	    git clone https://aur.archlinux.org/yay-bin.git
+	    cd yay-bin
+	    makepkg -si --noconfirm --needed
+	    cd $HOME
+	    rm -rf yay-bin
+	}
+	fi
+
 	if [[ $GTKENV == true ]]; then {
 	    flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal copyq flameshot clocks org.gnome.Calculator papers org.gnome.Calendar org.gnome.Loupe decibels pavucontrol -y
 
@@ -144,10 +144,10 @@ function installPrograms() {
 	    # To Flameshot properly work on Sway and Hyprland
 	    sudo flatpak override --env=XDG_CURRENT_DESKTOP=sway org.flameshot.Flameshot
 
-    } else {
-        flatpak install gwenview okular kclock kcalc -y
-    }
-    fi
+	} else {
+	    flatpak install gwenview okular kclock kcalc -y
+	}
+	fi
 	
 	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice freetube io.mpv.Mpv missioncenter foliate eyedropper postman kooha com.valvesoftware.Steam minetest heroic retroarch org.freedesktop.Platform.VulkanLayer.MangoHud org.freedesktop.Platform.VulkanLayer.gamescope page.kramo.Cartridges -y
 	
@@ -236,6 +236,7 @@ function userEnvironmentSetup() {
         gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
 
     } else {
+        cd $HOME
         sudo pacman -Syu git jq wget unzip qt6-svg qt6-declarative --noconfirm --needed
         git clone https://github.com/vinceliuice/Tela-circle-icon-theme; cd Tela-circle-icon-theme/; ./install.sh
 
@@ -247,6 +248,7 @@ function userEnvironmentSetup() {
         curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[3].browser_download_url')"; sudo mv catppuccin-mocha /usr/share/sddm/themes/
         ln -s ~/.local/share/icons/ ~/.icons
         sudo ln -sf ~/.local/share/icons/Bibata-Modern-Ice /usr/share/icons/Bibata-Modern-Ice; sudo ln -sf ~/.local/share/icons/Tela-circle /usr/share/icons/Tela-circle; sudo ln -sf ~/.local/share/icons/Tela-circle-light /usr/share/icons/Tela-circle-light; sudo ln -sf ~/.local/share/icons/Tela-circle-dark /usr/share/icons/Tela-circle-dark
+        cd $HOME
 
     }
     fi
