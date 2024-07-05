@@ -18,7 +18,7 @@ function initialSystemSetup() {
 	sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' -e 's/#ParallelDownloads = 5/ParallelDownloads = 20\nILoveCandy/' /etc/pacman.conf
 
 	# Making some directories and exporting variables to easy setup later
-	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/{.icons,.themes} $HOME/.var/app
+	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/.local/share/icons $HOME/{.icons,.themes} $HOME/.var/app
 	sudo mkdir -p /etc/zsh
 
 	echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
@@ -44,29 +44,34 @@ function desktopEnvironmentInstall() {
             printMessage "You choose $desktopEnvironment. Installing environment"
             sudo pacman -S gdm gnome-control-center gnome-tweaks wl-clipboard --noconfirm --needed
             sudo systemctl enable gdm
+            GTKENV=true
             ;;
 
         "hyprland")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S hyprland swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland pipewire-pulse --noconfirm --needed
+            sudo pacman -S hyprland swaybg swaylock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland pipewire-pulse --noconfirm --needed
+            GTKENV=true
             ;;
 
         "kde")
             printMessage "You choose $desktopEnvironment. Installing environment"
             sudo pacman -S plasma kitty dolphin ark spectacle wl-clipboard --noconfirm --needed
             sudo systemctl enable sddm
+            GTKENV=false
             ;;
 
         "sway")
             printMessage "You choose $desktopEnvironment. Installing environment"
-		    sudo pacman -S sway swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly pipewire-pulse --noconfirm --needed
+		    sudo pacman -S sway swaybg swaylock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly pipewire-pulse --noconfirm --needed
 		    sudo systemctl enable ly
+		    GTKENV=true
             ;;
 
         *)
             printMessage "No environment chosen. Installing KDE Plasma as default"
             sudo pacman -S plasma kitty dolphin ark spectacle wl-clipboard --noconfirm --needed
             sudo systemctl enable sddm
+            GTKENV=false
             ;;
     esac
 
@@ -107,7 +112,9 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S ffmpegthumbnailer flatpak gnome-epub-thumbnailer libnotify nautilus polkit-gnome --noconfirm --needed
+	if [[ $GTKENV == true ]]; then
+	    sudo pacman -S ffmpegthumbnailer flatpak gnome-epub-thumbnailer libnotify nautilus polkit-gnome --noconfirm --needed
+    fi
 	sudo pacman -S aria2 bat brightnessctl btop fastfetch fd fzf git gvfs-mtp inxi jq kitty libva-mesa-driver lsd man-db neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome power-profiles-daemon ripgrep rsync starship stow ttf-jetbrains-mono-nerd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zoxide zsh --noconfirm --needed
 
 	# Install yay-bin from AUR
@@ -125,17 +132,30 @@ function installPrograms() {
     }
     fi
 	
-	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal copyq flameshot clocks org.gnome.Calculator papers org.gnome.Calendar org.gnome.Loupe decibels pavucontrol
-	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice freetube io.mpv.Mpv missioncenter foliate eyedropper postman kooha com.valvesoftware.Steam minetest heroic retroarch org.freedesktop.Platform.VulkanLayer.MangoHud org.freedesktop.Platform.VulkanLayer.gamescope page.kramo.Cartridges -y
-	
-	# Grants Flatpak access to themes and icons inside $HOME directory to set the GTK theme
-	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0 --env=XCURSOR_PATH=~/.icons
+	if [[ $GTKENV == true ]]; then {
+	    flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal copyq flameshot clocks org.gnome.Calculator papers org.gnome.Calendar org.gnome.Loupe decibels pavucontrol -y
 
-	# Enable Wayland support on CopyQ
-	sudo flatpak override --env=QT_QPA_PLATFORM=wayland com.github.hluk.copyq
+	    # Grants Flatpak access to themes and icons inside $HOME directory to set the GTK theme
+	    sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0 --env=XCURSOR_PATH=~/.icons
+
+	    # Enable Wayland support on CopyQ
+	    sudo flatpak override --env=QT_QPA_PLATFORM=wayland com.github.hluk.copyq
+
+	    # To Flameshot properly work on Sway and Hyprland
+	    sudo flatpak override --env=XDG_CURRENT_DESKTOP=sway org.flameshot.Flameshot
+
+    } else {
+        flatpak install gwenview okular kclock kcalc -y
+    }
+    fi
+	
+	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice freetube io.mpv.Mpv missioncenter foliate eyedropper postman kooha com.valvesoftware.Steam minetest heroic retroarch org.freedesktop.Platform.VulkanLayer.MangoHud org.freedesktop.Platform.VulkanLayer.gamescope page.kramo.Cartridges -y
 	
 	# Grants Freetube access to session bus to be able to open videos on MPV
 	sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
+
+	# Enable Mangohud on Steam Games and grants Steam access to Games directory
+	sudo flatpak override --env=MANGOHUD=1 --filesystem=$HOME/Games com.valvesoftware.Steam
 
 	# Enable Wayland support on Thunderbird
 	sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.Thunderbird
@@ -183,38 +203,56 @@ function userEnvironmentSetup() {
 	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/http
 	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/https
 
-	# Install GTK, icon and cursor themes
-	cd $HOME
-	curl -L -O "$(curl "https://api.github.com/repos/lassekongo83/adw-gtk3/releases" | jq -r '.[0].assets[0].browser_download_url')"
-	tar -xvf adw-gtk3v*.tar.xz;
-	mv adw-gtk3 adw-gtk3-dark $HOME/.themes
-	git clone https://github.com/vinceliuice/Tela-circle-icon-theme
-	cd Tela-circle-icon-theme; ./install.sh -d $HOME/.icons; cd ../
-	curl -L -O "https://github.com/ful1e5/Bibata_Cursor/releases/latest/download/Bibata-Modern-Ice.tar.xz"
-	tar -xvf Bibata-Modern-Ice.tar.xz
-	mv Bibata-Modern-Ice $HOME/.icons
-	cd $HOME
+    if [[ $GTKENV == true ]]; then {
+        # Install GTK, icon and cursor themes
+        cd $HOME
+        curl -L -O "$(curl "https://api.github.com/repos/lassekongo83/adw-gtk3/releases" | jq -r '.[0].assets[0].browser_download_url')"
+        tar -xvf adw-gtk3v*.tar.xz;
+        rm -rf adw-gtk3v*.tar.xz;
+        mv adw-gtk3 adw-gtk3-dark $HOME/.themes
+        git clone https://github.com/vinceliuice/Tela-circle-icon-theme
+        cd Tela-circle-icon-theme; ./install.sh -d $HOME/.icons; cd ../
+        curl -L -O "https://github.com/ful1e5/Bibata_Cursor/releases/latest/download/Bibata-Modern-Ice.tar.xz"
+        tar -xvf Bibata-Modern-Ice.tar.xz
+        mv Bibata-Modern-Ice $HOME/.icons
+        cd $HOME
 
-	# Themes configuration
-	gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
-	gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dark'
-	gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
-	gsettings set org.gnome.desktop.wm.preferences theme "adw-gtk3-dark"
+        # Themes configuration
+        gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
+        gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dark'
+        gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
+        gsettings set org.gnome.desktop.wm.preferences theme "adw-gtk3-dark"
 
-	# Font Configuration
-	gsettings set org.gnome.desktop.interface font-name 'Noto Sans 11'
-	gsettings set org.gnome.desktop.interface document-font-name 'Noto Sans 11'
-	gsettings set org.gnome.desktop.interface monospace-font-name 'Noto Sans Mono 10'
-	gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Noto Sans Bold 11'
+        # Font Configuration
+        gsettings set org.gnome.desktop.interface font-name 'Noto Sans 11'
+        gsettings set org.gnome.desktop.interface document-font-name 'Noto Sans 11'
+        gsettings set org.gnome.desktop.interface monospace-font-name 'Noto Sans Mono 10'
+        gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Noto Sans Bold 11'
 
-	# GTK FileChooser configuration
-	gsettings set org.gtk.Settings.FileChooser sort-directories-first true
-	gsettings set org.gtk.Settings.FileChooser show-hidden true
-	gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
-	gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
+        # GTK FileChooser configuration
+        gsettings set org.gtk.Settings.FileChooser sort-directories-first true
+        gsettings set org.gtk.Settings.FileChooser show-hidden true
+        gsettings set org.gtk.gtk4.Settings.FileChooser sort-directories-first true
+        gsettings set org.gtk.gtk4.Settings.FileChooser show-hidden true
+
+    } else {
+        sudo pacman -Syu git jq wget unzip qt6-svg qt6-declarative --noconfirm --needed
+        git clone https://github.com/vinceliuice/Tela-circle-icon-theme; cd Tela-circle-icon-theme/; ./install.sh
+
+        curl -L -O "https://github.com/ful1e5/Bibata_Cursor/releases/latest/download/Bibata-Modern-Ice.tar.xz"; 
+        tar -xvf Bibata-Modern-Ice.tar.xz; mv Bibata-Modern-Ice $HOME/.local/share/icons/
+
+        git clone --depth=1 https://github.com/catppuccin/kde catppuccin-kde && cd catppuccin-kde; ./install.sh;
+
+        curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[3].browser_download_url')"; sudo mv catppuccin-mocha /usr/share/sddm/themes/
+        ln -s ~/.local/share/icons/ ~/.icons
+        sudo ln -sf ~/.local/share/icons/Bibata-Modern-Ice /usr/share/icons/Bibata-Modern-Ice; sudo ln -sf ~/.local/share/icons/Tela-circle /usr/share/icons/Tela-circle; sudo ln -sf ~/.local/share/icons/Tela-circle-light /usr/share/icons/Tela-circle-light; sudo ln -sf ~/.local/share/icons/Tela-circle-dark /usr/share/icons/Tela-circle-dark
+
+    }
+    fi
 
 	# Cleanup
-	rm -rf adw-gtk3v*.tar.xz Tela-circle-icon-theme Bibata-Modern-Ice.tar.xz .npm
+	rm -rf Tela-circle-icon-theme Bibata-Modern-Ice.tar.xz .npm
 	rm .bashrc .bash_profile .bash_logout .bash_history
 	sudo pacman -Rn gnu-free-fonts --noconfirm
 
@@ -225,8 +263,8 @@ function userEnvironmentSetup() {
 	sudo systemctl enable power-profiles-daemon
 
 	# Change shell to ZSH
-	chsh -s /bin/zsh
-	sudo chsh -s /bin/zsh
+	chsh -s /usr/bin/zsh
+	sudo chsh -s /usr/bin/zsh
 	source $HOME/.config/zsh/.zshenv
 
 	# Downloading Zim Framework
