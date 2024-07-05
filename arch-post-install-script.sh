@@ -36,31 +36,39 @@ function initialSystemSetup() {
 function desktopEnvironmentInstall() {
 	printMessage "$1"
 
-	printf "\nPlease, insert the desired desktop environment: sway, gnome or hyprland (default sway)\n"
+	printf "\nPlease, insert the desired desktop environment: gnome, hyprland, kde or sway (default kde)\n"
 	read desktopEnvironment
 
-	[[ -z $desktopEnvironment ]] && {
-		#If nothing is passed, default to sway
-		desktopEnvironment="sway"
-	}
+	case "$desktopEnvironment" in
+        "gnome")
+            printMessage "You choose $desktopEnvironment. Installing environment"
+            sudo pacman -S gdm gnome-control-center gnome-tweaks wl-clipboard --noconfirm --needed
+            sudo systemctl enable gdm
+            ;;
 
+        "hyprland")
+            printMessage "You choose $desktopEnvironment. Installing environment"
+            sudo pacman -S hyprland swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland pipewire-pulse --noconfirm --needed
+            ;;
 
-	[[ $desktopEnvironment == "gnome" ]] && {
-		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pacman -S gdm gnome-control-center gnome-tweaks wl-clipboard --noconfirm --needed
-		sudo systemctl enable gdm
-	}
+        "kde")
+            printMessage "You choose $desktopEnvironment. Installing environment"
+            sudo pacman -S plasma kitty dolphin ark spectacle wl-clipboard --noconfirm --needed
+            sudo systemctl enable sddm
+            ;;
 
-	[[ $desktopEnvironment == "sway" ]] && {
-		printMessage "You choose $desktopEnvironment. Installing environment"
-		sudo pacman -S sway swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly pipewire-pulse --noconfirm --needed
-		sudo systemctl enable ly
-	}
+        "sway")
+            printMessage "You choose $desktopEnvironment. Installing environment"
+		    sudo pacman -S sway swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly pipewire-pulse --noconfirm --needed
+		    sudo systemctl enable ly
+            ;;
 
-	[[ $desktopEnvironment == "hyprland" ]] && {
-	    printMessage "You choose $desktopEnvironment. Installing environment"
-	    sudo pacman -S hyprland swaybg swaylock waybar wofi grim slurp mako gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland pipewire-pulse --noconfirm --needed
-	}
+        *)
+            printMessage "No environment chosen. Installing KDE Plasma as default"
+            sudo pacman -S plasma kitty dolphin ark spectacle wl-clipboard --noconfirm --needed
+            sudo systemctl enable sddm
+            ;;
+    esac
 
 }
 
@@ -99,7 +107,8 @@ function desktopEnvironmentSetup() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S aria2 bat brightnessctl btop fastfetch ffmpegthumbnailer flatpak fzf git gnome-epub-thumbnailer gvfs-mtp inxi jq kitty libnotify libva-mesa-driver lsd man-db nautilus neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome polkit-gnome power-profiles-daemon rsync starship stow ttf-jetbrains-mono-nerd vulkan-radeon webp-pixbuf-loader xdg-user-dirs xdg-utils yad yt-dlp zoxide zsh --noconfirm --needed
+	sudo pacman -S ffmpegthumbnailer flatpak gnome-epub-thumbnailer libnotify nautilus polkit-gnome --noconfirm --needed
+	sudo pacman -S aria2 bat brightnessctl btop fastfetch fd fzf git gvfs-mtp inxi jq kitty libva-mesa-driver lsd man-db neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome power-profiles-daemon ripgrep rsync starship stow ttf-jetbrains-mono-nerd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zoxide zsh --noconfirm --needed
 
 	# Install yay-bin from AUR
 	printMessage "Do you want install Yay AUR helper?"
@@ -116,16 +125,17 @@ function installPrograms() {
     }
     fi
 	
-	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium copyq org.telegram.desktop com.discordapp.Discord flameshot org.libreoffice.LibreOffice clocks org.gnome.Calculator evince org.gnome.Calendar org.gnome.Loupe decibels freetube io.mpv.Mpv missioncenter pavucontrol foliate eyedropper postman kooha com.valvesoftware.Steam minetest -y
+	flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal copyq flameshot clocks org.gnome.Calculator papers org.gnome.Calendar org.gnome.Loupe decibels pavucontrol
+	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice freetube io.mpv.Mpv missioncenter foliate eyedropper postman kooha com.valvesoftware.Steam minetest heroic retroarch org.freedesktop.Platform.VulkanLayer.MangoHud org.freedesktop.Platform.VulkanLayer.gamescope page.kramo.Cartridges -y
 	
 	# Grants Flatpak access to themes and icons inside $HOME directory to set the GTK theme
 	sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0 --env=XCURSOR_PATH=~/.icons
+
+	# Enable Wayland support on CopyQ
+	sudo flatpak override --env=QT_QPA_PLATFORM=wayland com.github.hluk.copyq
 	
 	# Grants Freetube access to session bus to be able to open videos on MPV
 	sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
-
-	# Makes Copyq open via Xwayland to work properly
-	sudo flatpak override --env=QT_QPA_PLATFORM=xcb com.github.hluk.copyq
 
 	# Enable Wayland support on Thunderbird
 	sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.Thunderbird
