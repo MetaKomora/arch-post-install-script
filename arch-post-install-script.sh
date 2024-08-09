@@ -22,11 +22,12 @@ function initialSystemSetup() {
 	sudo mkdir -p /etc/zsh
 
 	echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
-	printf 'export XDG_CONFIG_HOME=$HOME/.config\n' >> $HOME/.config/zsh/.zshenv
-	printf 'export XDG_CACHE_HOME=$HOME/.cache\n' >> $HOME/.config/zsh/.zshenv
-	printf 'export XDG_DATA_HOME=$HOME/.local/share\n' >> $HOME/.config/zsh/.zshenv
-	printf 'export HISTFILE=$HOME/.config/zsh/zhistory\n' >> $HOME/.config/zsh/.zshenv
-	printf 'export ZIM_HOME=$HOME/.config/zim\n' >> $HOME/.config/zsh/.zshenv
+	printf '%s\n' \
+        'export XDG_CONFIG_HOME=$HOME/.config' \
+        'export XDG_CACHE_HOME=$HOME/.cache' \
+        'export XDG_DATA_HOME=$HOME/.local/share' \
+        'export HISTFILE=$HOME/.config/zsh/zhistory' \
+        'export ZIM_HOME=$HOME/.config/zim' >> $HOME/.config/zsh/.zshenv
 
 	# Disable pcspeaker sound on boot
 	echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf
@@ -113,9 +114,9 @@ function installPrograms() {
 	printMessage "$1"
 
 	if [[ $GTKENV == true ]]; then
-	    sudo pacman -S ffmpegthumbnailer flatpak gnome-epub-thumbnailer libnotify nautilus polkit-gnome --noconfirm --needed
+	    sudo pacman -S gnome-epub-thumbnailer nautilus polkit-gnome --noconfirm --needed
 	fi
-	sudo pacman -S aria2 bat brightnessctl btop fastfetch fd fzf git gvfs-mtp inxi jq kitty libva-mesa-driver lsd man-db neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome power-profiles-daemon ripgrep rsync starship stow ttf-jetbrains-mono-nerd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zoxide zsh --noconfirm --needed
+	sudo pacman -S aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer ffmpegthumbs flatpak fzf git git-delta gvfs-mtp inxi jq kitty libva-mesa-driver lsd man-db neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome power-profiles-daemon ripgrep rsync starship stow ttf-jetbrains-mono-nerd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yazi yt-dlp zoxide zsh --noconfirm --needed
 
 	# Install yay-bin from AUR
 	printMessage "Do you want install Yay AUR helper?"
@@ -149,7 +150,7 @@ function installPrograms() {
 	}
 	fi
 	
-	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice freetube io.mpv.Mpv missioncenter foliate eyedropper postman kooha com.valvesoftware.Steam minetest heroic retroarch org.freedesktop.Platform.VulkanLayer.MangoHud org.freedesktop.Platform.VulkanLayer.gamescope page.kramo.Cartridges -y
+	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice freetube io.mpv.Mpv missioncenter foliate eyedropper postman com.obsproject.Studio com.valvesoftware.Steam minetest heroic retroarch org.freedesktop.Platform.VulkanLayer.MangoHud org.freedesktop.Platform.VulkanLayer.gamescope page.kramo.Cartridges -y
 	
 	# Grants Freetube access to session bus to be able to open videos on MPV
 	sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
@@ -165,30 +166,18 @@ function installPrograms() {
 function devEnvironmentSetup() {
 	printMessage "$1"
 
-	printf "\nInstalling ASDF version manager, nodeJS and shellcheck\n"
+	printf "\nInstalling Mise version manager, nodeJS, pnpm and shellcheck\n"
 
-	# Export ASDF variables temporarily to use ASDF commands now
-	export ASDF_CONFIG_FILE="$HOME/.config/asdf/asdfrc"
-	export ASDF_DIR="$HOME/.config/asdf"
-	export ASDF_DATA_DIR="$HOME/.local/state/asdf"
-	export ASDF_DEFAULT_TOOL_VERSIONS_FILENAME=".config/asdf/.tool-versions"
+    # Mise installation and activation to use now
+	curl https://mise.run | sh
+    echo "eval \"\$($HOME/.local/bin/mise activate zsh)\"" >> "$HOME/.config/zsh/.zshrc"
+    mise activate bash
 
-	# Properly exporting ASDF variables to zshrc
-	printf '\n# ASDF version manager' >> $HOME/.config/zsh/.zshrc
-	printf '\nexport ASDF_CONFIG_FILE="$HOME/.config/asdf/asdfrc"' >> $HOME/.config/zsh/.zshrc
-	printf '\nexport ASDF_DIR="$HOME/.config/asdf"' >> $HOME/.config/zsh/.zshrc
-	printf '\nexport ASDF_DATA_DIR="$HOME/.local/state/asdf"' >> $HOME/.config/zsh/.zshrc
-	printf '\nexport ASDF_DEFAULT_TOOL_VERSIONS_FILENAME=".config/asdf/.tool-versions"' >> $HOME/.config/zsh/.zshrc
-	printf '\n. $HOME/.config/asdf/asdf.sh' >> $HOME/.config/zsh/.zshrc
+    # Mise and pnpm completions and Mise plugins installation
+    mise completion zsh >> "$HOME/.config/zsh/.zshrc"
+    mise use -g -y usage node@20 pnpm shellcheck
+    pnpm setup
 
-	# Adding ASDF completions to zshrc
-	printf '\n\n# append ASDF completions to fpath\nfpath=(${ASDF_DIR}/completions $fpath)\n# initialise completions with ZSH compinit\nautoload -Uz compinit && compinit\n' >> $HOME/.config/zsh/.zshrc
-
-	# ASDF and plugins installation
-	git clone https://github.com/asdf-vm/asdf.git $ASDF_DIR --branch v0.14.0
-	. $HOME/.config/asdf/asdf.sh
-	asdf plugin add nodejs && asdf install nodejs latest:20 && asdf global nodejs latest:20
-	asdf plugin add shellcheck && asdf install shellcheck latest && asdf global shellcheck latest
 }
 
 function userEnvironmentSetup() {
@@ -252,6 +241,9 @@ function userEnvironmentSetup() {
 
     }
     fi
+
+    # Yazi catppuccin-mocha theme installation
+    ya pack -a "yazi-rs/flavors#catppuccin-mocha"
 
 	# Cleanup
 	rm -rf Tela-circle-icon-theme Bibata-Modern-Ice.tar.xz .npm
