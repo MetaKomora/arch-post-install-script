@@ -17,11 +17,15 @@ function initialSystemSetup() {
 	# Uncommenting some options on Pacman config
 	sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' -e 's/#ParallelDownloads = 5/ParallelDownloads = 20\nILoveCandy/' /etc/pacman.conf
 
+	# Disable pcspeaker sound on boot
+	echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf
+
+	sudo mkdir -p /etc/zsh
+	echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
+
 	# Making some directories and exporting variables to easy setup later
 	mkdir -p $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/.local/share/icons $HOME/{.icons,.themes} $HOME/.var/app
-	sudo mkdir -p /etc/zsh
-
-	echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
+	
 	printf '%s\n' \
         'export XDG_CONFIG_HOME=$HOME/.config' \
         'export XDG_CACHE_HOME=$HOME/.cache' \
@@ -29,9 +33,6 @@ function initialSystemSetup() {
         'export HISTFILE=$HOME/.config/zsh/zhistory' \
         'export ZIM_HOME=$HOME/.config/zim' >> $HOME/.config/zsh/.zshenv
 
-	# Disable pcspeaker sound on boot
-	echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf
-	
 }
 
 function desktopEnvironmentInstall() {
@@ -43,21 +44,21 @@ function desktopEnvironmentInstall() {
 	case "$desktopEnvironment" in
         "hyprland")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S hyprland swaybg hypridle hyprlock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
+            sudo pacman -S hyprland swaybg hypridle hyprlock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard nautilus gnome-epub-thumbnailer polkit-gnome gcr xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
             sudo systemctl enable sddm
             GTKENV=true
             ;;
 
         "kde")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S plasma kitty dolphin ark spectacle wl-clipboard xdg-desktop-portal-gtk --noconfirm --needed
+            sudo pacman -S plasma dolphin ark spectacle wl-clipboard xdg-desktop-portal-gtk ffmpegthumbs --noconfirm --needed
             sudo systemctl enable sddm
             GTKENV=false
             ;;
 
         *)
             printMessage "No environment chosen. Installing KDE Plasma as default"
-            sudo pacman -S plasma kitty dolphin ark spectacle wl-clipboard --noconfirm --needed
+            sudo pacman -S plasma dolphin ark spectacle wl-clipboard xdg-desktop-portal-gtk ffmpegthumbs --noconfirm --needed
             sudo systemctl enable sddm
             GTKENV=false
             ;;
@@ -68,10 +69,7 @@ function desktopEnvironmentInstall() {
 function installPrograms() {
 	printMessage "$1"
 
-	if [[ $GTKENV == true ]]; then
-	    sudo pacman -S gnome-epub-thumbnailer nautilus polkit-gnome --noconfirm --needed
-	fi
-	sudo pacman -S aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer ffmpegthumbs flatpak fzf git git-delta gvfs-mtp inxi jq kitty libva-mesa-driver lsd man-db neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome power-profiles-daemon ripgrep rsync starship stow ttf-jetbrains-mono-nerd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yazi yt-dlp zoxide zsh --noconfirm --needed
+	sudo pacman -S aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf git git-delta gum gvfs-mtp inxi jq kitty libva-mesa-driver lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome poppler power-profiles-daemon p7zip ripgrep rsync starship stow ttf-jetbrains-mono-nerd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yazi yt-dlp zoxide zsh --noconfirm --needed
 
 	# Install yay-bin from AUR
 	printMessage "Do you want install Yay AUR helper?"
