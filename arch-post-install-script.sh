@@ -37,35 +37,22 @@ function initialSystemSetup() {
 function desktopEnvironmentInstall() {
 	printMessage "$1"
 
-	printf "\nPlease, insert the desired desktop environment: gnome, hyprland, kde or sway (default kde)\n"
+	printf "\nPlease, insert the desired desktop environment: hyprland or kde (default kde)\n"
 	read desktopEnvironment
 
 	case "$desktopEnvironment" in
-        "gnome")
-            printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S gdm gnome-control-center gnome-tweaks wl-clipboard --noconfirm --needed
-            sudo systemctl enable gdm
-            GTKENV=true
-            ;;
-
         "hyprland")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S hyprland swaybg swaylock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland pipewire-pulse --noconfirm --needed
+            sudo pacman -S hyprland swaybg hypridle hyprlock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
+            sudo systemctl enable sddm
             GTKENV=true
             ;;
 
         "kde")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S plasma kitty dolphin ark spectacle wl-clipboard --noconfirm --needed
+            sudo pacman -S plasma kitty dolphin ark spectacle wl-clipboard xdg-desktop-portal-gtk --noconfirm --needed
             sudo systemctl enable sddm
             GTKENV=false
-            ;;
-
-        "sway")
-            printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S sway swaybg swaylock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard xdg-desktop-portal-gtk xdg-desktop-portal-wlr ly pipewire-pulse --noconfirm --needed
-            sudo systemctl enable ly
-            GTKENV=true
             ;;
 
         *)
@@ -76,38 +63,6 @@ function desktopEnvironmentInstall() {
             ;;
     esac
 
-}
-
-function desktopEnvironmentSetup() {
-    printMessage "$1"
-
-    [[ $desktopEnvironment == "gnome" ]] && {
-        # Set keyboard layout
-        gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'br')]"
-
-        # Mouse and Touchpad configurations
-        gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
-        gsettings set org.gnome.desktop.peripherals.touchpad speed 0.85
-        gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
-        gsettings set org.gnome.desktop.peripherals.mouse speed 0.5
-
-        # Open Nautilus maximized
-        gsettings set org.gnome.nautilus.window-state maximized true
-
-        # Set 4 static workspaces
-        gsettings set org.gnome.mutter dynamic-workspaces false
-        gsetinggs set org.gnome.desktop.wm.preferences num-workspaces 4
-
-        # alt+tab switch between programs only on current workspace
-        gsettings set org.gnome.shell.app-switcher current-workspace-only true
-
-        # Set keyboard shortcuts to workspaces
-        gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-1 ['<Shift><Super>exclam']
-        gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-2 ['<Shift><Super>at']
-        gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-3 ['<Shift><Super>numbersign']
-        gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-4 ['<Shift><Super>dollar']
-        gsettings set org.gnome.desktop.wm.keybindings show-desktop ['<Primary><Alt>d']
-    }
 }
 
 function installPrograms() {
@@ -299,8 +254,6 @@ installPrograms "Installing Programs"
 devEnvironmentSetup "Installing development tools"
 
 userEnvironmentSetup "Setting default applications, installing themes and making cleanups"
-
-desktopEnvironmentSetup "Setting specific environment configurations"
 
 enableZRAM "Enabling and configuring ZRAM"
 
