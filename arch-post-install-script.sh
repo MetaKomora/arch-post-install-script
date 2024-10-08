@@ -86,24 +86,10 @@ function installPrograms() {
 	}
 	fi
 
-	if [[ $GTKENV == true ]]; then {
-	    flatpak install org.gtk.Gtk3theme.adw-gtk3 org.gtk.Gtk3theme.adw-gtk3-dark gradience flatseal copyq flameshot clocks org.gnome.Calculator papers org.gnome.Calendar org.gnome.Loupe decibels pavucontrol -y
-
-	    # Grants Flatpak access to themes and icons inside $HOME directory to set the GTK theme
-	    sudo flatpak override --filesystem=~/.themes --filesystem=~/.icons --filesystem=xdg-config/gtk-3.0 --filesystem=xdg-config/gtk-4.0 --env=XCURSOR_PATH=~/.icons
-
-	    # Enable Wayland support on CopyQ
-	    sudo flatpak override --env=QT_QPA_PLATFORM=wayland com.github.hluk.copyq
-
-	    # To Flameshot properly work on Sway and Hyprland
-	    sudo flatpak override --env=XDG_CURRENT_DESKTOP=sway org.flameshot.Flameshot
-
-	} else {
-	    flatpak install gwenview okular kclock kcalc -y
-	}
-	fi
+	# Grants Flatpak read access to all possible locations for themes and icons inside $HOME directory and Mangohud config read access
+	sudo flatpak override --filesystem=~/.themes:ro --filesystem=~/.icons:ro --filesystem=~/.local/share/icons:ro --filesystem=~/.local/share/themes:ro --filesystem=xdg-config/gtk-3.0:ro --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/MangoHud:ro --env=XCURSOR_PATH=~/.icons
 	
-	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice freetube io.mpv.Mpv missioncenter foliate eyedropper postman com.obsproject.Studio com.valvesoftware.Steam minetest heroic retroarch org.freedesktop.Platform.VulkanLayer.MangoHud org.freedesktop.Platform.VulkanLayer.gamescope page.kramo.Cartridges -y
+	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice org.gnome.papers org.gnome.clocks org.gnome.Calculator io.freetubeapp.FreeTube io.mpv.Mpv io.missioncenter.MissionCenter com.github.johnfactotum.Foliate com.github.finefindus.eyedropper com.usebruno.Bruno com.obsproject.Studio com.valvesoftware.Steam net.minetest.Minetest com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud org.freedesktop.Platform.VulkanLayer.gamescope page.kramo.Cartridges -y
 	
 	# Grants Freetube access to session bus to be able to open videos on MPV
 	sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
@@ -113,6 +99,31 @@ function installPrograms() {
 
 	# Enable Wayland support on Thunderbird
 	sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.Thunderbird
+
+	
+	if [[ $GTKENV == true ]]; then {
+	    flatpak install com.github.tchx84.Flatseal com.github.hluk.copyq org.flameshot.Flameshot org.gnome.Calendar org.gnome.Loupe org.gnome.Decibels com.saivert.pwvucontrol -y
+
+	    # Enable Wayland support on CopyQ
+	    sudo flatpak override --env=QT_QPA_PLATFORM=wayland com.github.hluk.copyq
+
+	    # To Flameshot properly work on Hyprland
+	    sudo flatpak override --env=XDG_CURRENT_DESKTOP=sway org.flameshot.Flameshot
+
+	    # For Telegram Pop-ups to work properly
+	    sudo flatpak override --env=QT_WAYLAND_DISABLED_INTERFACES=wp_fractional_scale_manager_v1 org.telegram.desktop
+
+	    # Set manually the Chromium Scaling
+	    sudo flatpak override --env=GDK_DPI_SCALE=1.25 org.chromium.Chromium
+
+	} else {
+	    flatpak install org.kde.gwenview -y
+
+        # Force Steam scaling manually
+	    sudo flatpak override --env=STEAM_FORCE_DESKTOPUI_SCALING=1.25 com.valvesoftware.Steam
+
+	}
+	fi
 	
 }
 
