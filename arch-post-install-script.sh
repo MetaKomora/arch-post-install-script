@@ -18,7 +18,7 @@ function initialSystemSetup() {
 	sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' -e 's/#ParallelDownloads = 5/ParallelDownloads = 20\nILoveCandy/' /etc/pacman.conf
 
 	# Disable pcspeaker sound on boot
-	echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf
+	[[ ! -e "/etc/modprobe.d/nobeep.conf" ]] && echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf;
 
 	sudo mkdir -pv /etc/zsh
 	echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
@@ -89,9 +89,9 @@ function installPrograms() {
 	# Grants Flatpak read access to all possible locations for themes and icons inside $HOME directory and Mangohud config read access
 	sudo flatpak override --filesystem=~/.themes:ro --filesystem=~/.icons:ro --filesystem=~/.local/share/icons:ro --filesystem=~/.local/share/themes:ro --filesystem=xdg-config/gtk-3.0:ro --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/MangoHud:ro --env=XCURSOR_PATH=~/.icons
 	
-	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.papers -y
+	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers -y
 
-	flatpak install com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator io.mpv.Mpv io.missioncenter.MissionCenter com.github.johnfactotum.Foliate com.github.finefindus.eyedropper com.usebruno.Bruno com.obsproject.Studio net.minetest.Minetest com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud org.freedesktop.Platform.VulkanLayer.gamescope page.kramo.Cartridges -y
+	flatpak install com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator io.mpv.Mpv io.missioncenter.MissionCenter com.github.johnfactotum.Foliate com.github.finefindus.eyedropper com.usebruno.Bruno com.obsproject.Studio net.minetest.Minetest com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud/x86_64/23.08 org.freedesktop.Platform.VulkanLayer.gamescope/x86_64/23.08 page.kramo.Cartridges -y
 	
 	# Grants Freetube access to session bus to be able to open videos on MPV
 	sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
@@ -121,7 +121,7 @@ function installPrograms() {
 	} else {
 	    flatpak install org.kde.gwenview -y
 
-        # Force Steam scaling manually
+            # Force Steam scaling manually
 	    sudo flatpak override --env=STEAM_FORCE_DESKTOPUI_SCALING=1.25 com.valvesoftware.Steam
 
 	}
@@ -134,14 +134,14 @@ function devEnvironmentSetup() {
 
 	printf "\nInstalling Mise version manager, nodeJS, pnpm and shellcheck\n"
 
-    # Mise installation and activation to use now
+    	# Mise installation and activation to use now
 	curl https://mise.run | sh
-    echo "eval \"\$($HOME/.local/bin/mise activate zsh)\"" >> "$HOME/.config/zsh/.zshrc"
+    	echo "eval \"\$($HOME/.local/bin/mise activate zsh)\"" >> "$HOME/.config/zsh/.zshrc"
 
-    # Mise and pnpm completions and Mise plugins installation
-    $HOME/.local/bin/mise completion zsh >> "$HOME/.config/zsh/.zshrc"
-    $HOME/.local/bin/mise use -g -y usage node@20 pnpm shellcheck
-    pnpm setup
+    	# Mise and pnpm completions and Mise plugins installation
+    	$HOME/.local/bin/mise completion zsh >> "$HOME/.config/zsh/.zshrc"
+    	$HOME/.local/bin/mise use -g -y usage node@20 pnpm shellcheck
+    	pnpm setup
 
 }
 
@@ -154,7 +154,7 @@ function userEnvironmentSetup() {
 	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/http
 	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/https
 
-    # Downloading and extracting icon and cursor themes
+    	# Downloading and extracting icon and cursor themes
 	cd $HOME
 	git clone https://github.com/vinceliuice/Tela-circle-icon-theme
 	curl -L -O "https://github.com/ful1e5/Bibata_Cursor/releases/latest/download/Bibata-Modern-Ice.tar.xz"
@@ -204,8 +204,8 @@ function userEnvironmentSetup() {
     }
     fi
 
-    # Yazi catppuccin-mocha theme installation
-    ya pack -a "yazi-rs/flavors#catppuccin-mocha"
+    	# Yazi catppuccin-mocha theme installation
+    	ya pack -a "yazi-rs/flavors#catppuccin-mocha"
 
 	# Cleanup
 	rm -rfv Tela-circle-icon-theme Bibata-Modern-Ice.tar.xz .npm
@@ -225,7 +225,7 @@ function systemTweaks() {
 	# Enable power-profiles-daemon
 	sudo systemctl enable power-profiles-daemon
 
-    # Remove gnu-free-fonts since noto-fonts is already installed
+    	# Remove gnu-free-fonts since noto-fonts is already installed
 	sudo pacman -Rn gnu-free-fonts --noconfirm
 	
 	# Enable zram module
@@ -241,21 +241,23 @@ function systemTweaks() {
 	# Optimizing swap on zram
 	printf "vm.swappiness = 180\nvm.watermark_boost_factor = 0\nvm.watermark_scale_factor = 125\nvm.page-cluster = 0" | sudo tee -a /etc/sysctl.d/99-vm-zram-parameters.conf
 
-    # Installing and configuring SDDM theme
+    	# Installing and configuring SDDM theme
 	sudo pacman -S qt6-svg qt6-declarative --noconfirm --needed
-    sudo mkdir -pv /etc/sddm.conf.d/ /usr/share/sddm/themes/
-    curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[3].browser_download_url')"; 
-    sudo mv -v catppuccin-mocha /usr/share/sddm/themes/
+    	sudo mkdir -pv /etc/sddm.conf.d/ /usr/share/sddm/themes/
+    	curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[3].browser_download_url')";
+	7z x catppuccin-mocha.zip
+    	sudo mv catppuccin-mocha /usr/share/sddm/themes/
+	sudo rm catppuccin-mocha.zip
 
-    printf '%s\n' \
+    	printf '%s\n' \
         '[Theme]' \
         'Current=catppuccin-mocha' \
         '[General]' \
         'GreeterEnvironment=QT_SCREEN_SCALE_FACTORS=1.25' \
         '[Wayland]' \
-        'EnableHiDPI=true' >> /etc/sddm.conf.d/default.conf
+        'EnableHiDPI=true' | sudo tee -a /etc/sddm.conf.d/default.conf
 
-    # Change shell to ZSH
+    	# Change shell to ZSH
 	chsh -s /usr/bin/zsh
 	sudo chsh -s /usr/bin/zsh
 	source $HOME/.config/zsh/.zshenv
