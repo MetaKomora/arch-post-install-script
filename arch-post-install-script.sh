@@ -24,7 +24,7 @@ function initialSystemSetup() {
 	echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
 
 	# Making some directories and exporting variables to easy setup later
-	mkdir -pv $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/.local/share/icons $HOME/{.icons,.themes} $HOME/.var/app
+	mkdir -pv $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/.local/share/icons $HOME/{.icons,.themes} $HOME/.var/app $HOME/.config/{gtk-3.0,gtk-4.0} $HOME/.icons/default
 	
 	printf '%s\n' \
         'export XDG_CONFIG_HOME=$HOME/.config' \
@@ -151,8 +151,8 @@ function userEnvironmentSetup() {
 	# Setting XDG directories and some default applications
 	xdg-user-dirs-update
 	xdg-mime default org.gnome.Papers.desktop application/pdf
-	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/http
-	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/https
+	xdg-mime default io.github.zen_browser.zen.desktop x-scheme-handler/http
+	xdg-mime default io.github.zen_browser.zen.desktop x-scheme-handler/https
 
     # Downloading and extracting icon and cursor themes
 	cd $HOME
@@ -170,17 +170,11 @@ function userEnvironmentSetup() {
         mv -v $HOME/Bibata-Modern-Ice $HOME/.icons
         cd $HOME
 
-        # Themes configuration
-        gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark'
-        gsettings set org.gnome.desktop.interface icon-theme 'Tela-circle-dark'
-        gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
-        gsettings set org.gnome.desktop.wm.preferences theme "adw-gtk3-dark"
+        gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 
-        # Font Configuration
-        gsettings set org.gnome.desktop.interface font-name 'Noto Sans 11'
-        gsettings set org.gnome.desktop.interface document-font-name 'Noto Sans 11'
-        gsettings set org.gnome.desktop.interface monospace-font-name 'Noto Sans Mono 10'
-        gsettings set org.gnome.desktop.wm.preferences titlebar-font 'Noto Sans Bold 11'
+        printf "[Settings]\ngtk-icon-theme-name=Tela-circle-dark\ngtk-cursor-theme-name=Bibata-Modern-Ice\ngtk-cursor-theme-size=24\ngtk-font-name=Noto Sans 11\ngtk-xft-antialias=1\ngtk-xft-hinting=1\ngtk-xft-hintstyle=hintslight\ngtk-xft-rgba=rgb" | tee $HOME/.config/gtk-3.0/settings.ini $HOME/.config/gtk-4.0/settings.ini
+
+        printf "[Icon Theme]\nName=Default\nComment=Default Cursor Theme\nInherits=Bibata-Modern-Ice" >$HOME/.icons/default/index.theme
 
         # GTK FileChooser configuration
         gsettings set org.gtk.Settings.FileChooser sort-directories-first true
@@ -222,7 +216,7 @@ function systemTweaks() {
 	# Activate conservation mode on Ideapad laptops
 	echo 1 | sudo tee /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode
 
-	# Enable power-profiles-daemon
+    # Enable tuned and tuned-ppd
 	sudo systemctl enable tuned tuned-ppd
 
     # Remove gnu-free-fonts since noto-fonts is already installed
