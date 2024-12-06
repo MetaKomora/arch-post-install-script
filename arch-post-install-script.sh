@@ -134,14 +134,14 @@ function devEnvironmentSetup() {
 
 	printf "\nInstalling Mise version manager, nodeJS, pnpm and shellcheck\n"
 
-    	# Mise installation and activation to use now
+    # Mise installation and activation to use now
 	curl https://mise.run | sh
-    	echo "eval \"\$($HOME/.local/bin/mise activate zsh)\"" >> "$HOME/.config/zsh/.zshrc"
+    echo "eval \"\$($HOME/.local/bin/mise activate zsh)\"" >> "$HOME/.config/zsh/.zshrc"
 
-    	# Mise and pnpm completions and Mise plugins installation
-    	$HOME/.local/bin/mise completion zsh >> "$HOME/.config/zsh/.zshrc"
-    	$HOME/.local/bin/mise use -g -y usage node@20 pnpm shellcheck
-    	pnpm setup
+    # Mise and pnpm completions and Mise plugins installation
+    $HOME/.local/bin/mise completion zsh >> "$HOME/.config/zsh/.zshrc"
+    $HOME/.local/bin/mise use -g -y usage node@20 pnpm shellcheck@0.9.0
+    pnpm setup
 
 }
 
