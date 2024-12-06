@@ -44,7 +44,7 @@ function desktopEnvironmentInstall() {
 	case "$desktopEnvironment" in
         "hyprland")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S hyprland swaybg hypridle hyprlock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard nautilus gnome-epub-thumbnailer polkit-gnome gcr xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
+            sudo pacman -S hyprland swaybg hypridle hyprlock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard nautilus gnome-epub-thumbnailer polkit-gnome gcr udiskie libappindicator-gtk3 xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
             sudo systemctl enable sddm
             GTKENV=true
             ;;
@@ -69,7 +69,7 @@ function desktopEnvironmentInstall() {
 function installPrograms() {
 	printMessage "$1"
 
-	sudo pacman -S aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf git git-delta gum gvfs-mtp inxi jq kitty libva-mesa-driver lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome poppler power-profiles-daemon p7zip ripgrep rsync starship stow ttf-jetbrains-mono-nerd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yazi yt-dlp zoxide zsh --noconfirm --needed
+	sudo pacman -S aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gdu git git-delta gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome poppler p7zip ripgrep rsync starship stow tealdeer ttf-jetbrains-mono-nerd tuned-ppd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zellij zoxide zsh --noconfirm --needed
 
 	# Install yay-bin from AUR
 	printMessage "Do you want install Yay AUR helper?"
@@ -89,9 +89,9 @@ function installPrograms() {
 	# Grants Flatpak read access to all possible locations for themes and icons inside $HOME directory and Mangohud config read access
 	sudo flatpak override --filesystem=~/.themes:ro --filesystem=~/.icons:ro --filesystem=~/.local/share/icons:ro --filesystem=~/.local/share/themes:ro --filesystem=xdg-config/gtk-3.0:ro --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/MangoHud:ro --env=XCURSOR_PATH=~/.icons
 	
-	flatpak install org.mozilla.firefox org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers -y
+	flatpak install org.mozilla.firefox io.github.zen_browser.zen org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers -y
 
-	flatpak install com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator io.mpv.Mpv io.missioncenter.MissionCenter com.github.johnfactotum.Foliate com.github.finefindus.eyedropper com.usebruno.Bruno com.obsproject.Studio net.minetest.Minetest com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud/x86_64/23.08 org.freedesktop.Platform.VulkanLayer.gamescope/x86_64/23.08 page.kramo.Cartridges -y
+	flatpak install com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator io.mpv.Mpv io.missioncenter.MissionCenter com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio net.minetest.Minetest com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud/x86_64/23.08 org.freedesktop.Platform.VulkanLayer.gamescope/x86_64/23.08 com.valvesoftware.Steam.CompatibilityTool.Proton-GE page.kramo.Cartridges com.usebottles.bottles -y
 	
 	# Grants Freetube access to session bus to be able to open videos on MPV
 	sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
@@ -104,7 +104,7 @@ function installPrograms() {
 
 	
 	if [[ $GTKENV == true ]]; then {
-	    flatpak install com.github.tchx84.Flatseal com.github.hluk.copyq org.flameshot.Flameshot org.gnome.Calendar org.gnome.Loupe org.gnome.Decibels com.saivert.pwvucontrol -y
+	    flatpak install com.github.tchx84.Flatseal com.github.hluk.copyq org.flameshot.Flameshot org.gnome.Calendar org.gnome.Loupe com.saivert.pwvucontrol -y
 
 	    # Enable Wayland support on CopyQ
 	    sudo flatpak override --env=QT_QPA_PLATFORM=wayland com.github.hluk.copyq
@@ -121,7 +121,7 @@ function installPrograms() {
 	} else {
 	    flatpak install org.kde.gwenview -y
 
-            # Force Steam scaling manually
+        # Force Steam scaling manually
 	    sudo flatpak override --env=STEAM_FORCE_DESKTOPUI_SCALING=1.25 com.valvesoftware.Steam
 
 	}
@@ -132,7 +132,7 @@ function installPrograms() {
 function devEnvironmentSetup() {
 	printMessage "$1"
 
-	printf "\nInstalling Mise version manager, nodeJS, pnpm and shellcheck\n"
+    printf "\nInstalling Mise version manager, nodeJS, pnpm and shellcheck\n"
 
     # Mise installation and activation to use now
 	curl https://mise.run | sh
@@ -154,7 +154,7 @@ function userEnvironmentSetup() {
 	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/http
 	xdg-mime default org.mozilla.firefox.desktop x-scheme-handler/https
 
-    	# Downloading and extracting icon and cursor themes
+    # Downloading and extracting icon and cursor themes
 	cd $HOME
 	git clone https://github.com/vinceliuice/Tela-circle-icon-theme
 	curl -L -O "https://github.com/ful1e5/Bibata_Cursor/releases/latest/download/Bibata-Modern-Ice.tar.xz"
@@ -204,8 +204,8 @@ function userEnvironmentSetup() {
     }
     fi
 
-    	# Yazi catppuccin-mocha theme installation
-    	ya pack -a "yazi-rs/flavors#catppuccin-mocha"
+    # Yazi catppuccin-mocha theme installation
+    ya pack -a "yazi-rs/flavors#catppuccin-mocha"
 
 	# Cleanup
 	rm -rfv Tela-circle-icon-theme Bibata-Modern-Ice.tar.xz .npm
@@ -223,9 +223,9 @@ function systemTweaks() {
 	echo 1 | sudo tee /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/conservation_mode
 
 	# Enable power-profiles-daemon
-	sudo systemctl enable power-profiles-daemon
+	sudo systemctl enable tuned tuned-ppd
 
-    	# Remove gnu-free-fonts since noto-fonts is already installed
+    # Remove gnu-free-fonts since noto-fonts is already installed
 	sudo pacman -Rn gnu-free-fonts --noconfirm
 	
 	# Enable zram module
@@ -241,15 +241,15 @@ function systemTweaks() {
 	# Optimizing swap on zram
 	printf "vm.swappiness = 180\nvm.watermark_boost_factor = 0\nvm.watermark_scale_factor = 125\nvm.page-cluster = 0" | sudo tee -a /etc/sysctl.d/99-vm-zram-parameters.conf
 
-    	# Installing and configuring SDDM theme
+    # Installing and configuring SDDM theme
 	sudo pacman -S qt6-svg qt6-declarative --noconfirm --needed
-    	sudo mkdir -pv /etc/sddm.conf.d/ /usr/share/sddm/themes/
-    	curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[3].browser_download_url')";
+    sudo mkdir -pv /etc/sddm.conf.d/ /usr/share/sddm/themes/
+    curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[3].browser_download_url')";
 	7z x catppuccin-mocha.zip
-    	sudo mv catppuccin-mocha /usr/share/sddm/themes/
+    sudo mv catppuccin-mocha /usr/share/sddm/themes/
 	sudo rm catppuccin-mocha.zip
 
-    	printf '%s\n' \
+    printf '%s\n' \
         '[Theme]' \
         'Current=catppuccin-mocha' \
         '[General]' \
@@ -257,7 +257,7 @@ function systemTweaks() {
         '[Wayland]' \
         'EnableHiDPI=true' | sudo tee -a /etc/sddm.conf.d/default.conf
 
-    	# Change shell to ZSH
+    # Change shell to ZSH
 	chsh -s /usr/bin/zsh
 	sudo chsh -s /usr/bin/zsh
 	source $HOME/.config/zsh/.zshenv
