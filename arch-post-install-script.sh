@@ -69,7 +69,7 @@ function desktopEnvironmentInstall() {
 function installPrograms() {
     printMessage "$1"
 
-    sudo pacman -S 7zip aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gcr gdu git git-delta gnupg gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji openssh otf-font-awesome poppler ripgrep rsync starship stow tealdeer tela-circle-icon-theme-standard tmux ttf-jetbrains-mono-nerd tuned-ppd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zoxide zsh --noconfirm --needed
+    sudo pacman -S 7zip adwaita-fonts aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gcr gdu git git-delta gnupg gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji openssh otf-font-awesome poppler ripgrep rsync starship stow tealdeer tela-circle-icon-theme-standard tmux ttf-jetbrains-mono-nerd tuned-ppd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zoxide zsh --noconfirm --needed
 
     # Install yay-bin from AUR
     printMessage "Do you want install Yay AUR helper?"
@@ -153,9 +153,8 @@ function userEnvironmentSetup() {
     xdg-mime default org.gnome.Papers.desktop application/pdf
     xdg-mime default app.zen_browser.zen.desktop x-scheme-handler/http x-scheme-handler/https
 
-    # Downloading and extracting icon and cursor themes
+    # Downloading and extracting cursor theme
     cd $HOME
-    git clone https://github.com/vinceliuice/Tela-circle-icon-theme
     curl -L -O "https://github.com/ful1e5/Bibata_Cursor/releases/latest/download/Bibata-Modern-Ice.tar.xz"
     tar -xvf Bibata-Modern-Ice.tar.xz
 
@@ -163,7 +162,6 @@ function userEnvironmentSetup() {
 
         xdg-mime default org.gnome.Loupe.desktop image/png image/jpeg image/webp
 
-        cd $HOME/Tela-circle-icon-theme; ./install.sh -d $HOME/.icons
         mv -v $HOME/Bibata-Modern-Ice $HOME/.icons
         cd $HOME
 
@@ -181,11 +179,8 @@ function userEnvironmentSetup() {
 
     } else {
 
-        xdg-mime default org.kde.gwenview.desktop image/png
-        xdg-mime default org.kde.gwenview.desktop image/jpeg
-        xdg-mime default org.kde.gwenview.desktop image/webp
+        xdg-mime default org.kde.gwenview.desktop image/png image/jpeg image/webp
 
-        cd $HOME/Tela-circle-icon-theme; ./install.sh -d $HOME/.local/share/icons
         mv -v $HOME/Bibata-Modern-Ice $HOME/.local/share/icons
         cd $HOME
 
@@ -199,7 +194,7 @@ function userEnvironmentSetup() {
     ya pack -a "yazi-rs/flavors#catppuccin-mocha"
 
     # Cleanup
-    rm -rfv Tela-circle-icon-theme Bibata-Modern-Ice.tar.xz .npm
+    rm -rfv Bibata-Modern-Ice.tar.xz .npm
     rm -v .bashrc .bash_profile .bash_logout .bash_history
 
     echo "eval \"\$(starship init zsh)\"" >> "$HOME/.config/zsh/.zshrc"
@@ -223,10 +218,10 @@ function systemTweaks() {
     echo "zram" | sudo tee -a /etc/modules-load.d/zram.conf
 	
     # Create a udev rule. Change ATTR{disksize} to your needs
-    echo 'ACTION=="add", KERNEL=="zram0", ATTR{comp_algorithm}="zstd", ATTR{disksize}="4G", RUN="/usr/bin/mkswap -U clear /dev/%k", TAG+="systemd"' | sudo tee -a /etc/udev/rules.d/99-zram.rules
+    echo 'ACTION=="add", KERNEL=="zram0", ATTR{initstate}=="0", ATTR{comp_algorithm}="zstd", ATTR{disksize}="4G", RUN="/usr/bin/mkswap -U clear %N", TAG+="systemd"' | sudo tee -a /etc/udev/rules.d/99-zram.rules
 	
     # Add /dev/zram to your fstab
-    echo "/dev/zram0 none swap defaults,pri=100 0 0" | sudo tee -a /etc/fstab
+    echo "/dev/zram0 none swap defaults,discard,pri=100 0 0" | sudo tee -a /etc/fstab
 	
     # Optimizing swap on zram
     printf "vm.swappiness = 180\nvm.watermark_boost_factor = 0\nvm.watermark_scale_factor = 125\nvm.page-cluster = 0" | sudo tee -a /etc/sysctl.d/99-vm-zram-parameters.conf
@@ -279,9 +274,9 @@ systemTweaks "Enabling, configuring ZRAM and other tweaks"
 printMessage "Please, reboot system to apply changes"
 
 
-# Some useful packages list:
+# Some useful apps and packages list:
 
-# azote exfat-utils usbutils copyq yazi gdu cmus opus-tools otf-font-awesome inxi ecm-tools kdeconnect dmidecode dupeguru p7zip-full unrar timeshift ytfzf hdsentinel nwg-look-bin wf-recorder qt5ct qt5-styleplugins
+# azote exfat-utils usbutils copyq cmus opus-tools kdeconnect dmidecode unrar timeshift ytfzf hdsentinel nwg-look wf-recorder qt5ct qt5-styleplugins waydroid distrobox android-tools lazygit qt5-wayland qt6-wayland cliphist io.github.flattool.Warehouse org.kde.kget page.codeberg.libre_menu_editor.LibreMenuEditor
 
 
 # More information:
