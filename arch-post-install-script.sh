@@ -44,7 +44,7 @@ function desktopEnvironmentInstall() {
     case "$desktopEnvironment" in
         "hyprland")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S hyprland swaybg hypridle hyprlock waybar rofi-wayland grim slurp dunst gammastep xorg-xwayland wl-clipboard nautilus gnome-epub-thumbnailer polkit-gnome gcr udiskie libappindicator-gtk3 xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
+            sudo pacman -S hyprland swaybg hypridle hyprlock waybar rofi-wayland grim slurp dunst hyprsunset xorg-xwayland wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
             sudo systemctl enable sddm
             GTKENV=true
             ;;
@@ -69,7 +69,7 @@ function desktopEnvironmentInstall() {
 function installPrograms() {
     printMessage "$1"
 
-    sudo pacman -S aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gdu git git-delta gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji otf-font-awesome poppler p7zip ripgrep rsync starship stow tealdeer ttf-jetbrains-mono-nerd tuned-ppd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zellij zoxide zsh --noconfirm --needed
+    sudo pacman -S 7zip aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gcr gdu git git-delta gnupg gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji openssh otf-font-awesome poppler ripgrep rsync starship stow tealdeer tela-circle-icon-theme-standard tmux ttf-jetbrains-mono-nerd tuned-ppd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zoxide zsh --noconfirm --needed
 
     # Install yay-bin from AUR
     printMessage "Do you want install Yay AUR helper?"
@@ -89,9 +89,9 @@ function installPrograms() {
     # Grants Flatpak read access to all possible locations for themes and icons inside $HOME directory and Mangohud config read access
     sudo flatpak override --filesystem=~/.themes:ro --filesystem=~/.icons:ro --filesystem=~/.local/share/icons:ro --filesystem=~/.local/share/themes:ro --filesystem=xdg-config/gtk-3.0:ro --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/MangoHud:ro --env=XCURSOR_PATH=~/.icons
 	
-    flatpak install org.mozilla.firefox io.github.zen_browser.zen org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers -y
+    flatpak install org.mozilla.firefox app.zen_browser.zen org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers -y
 
-    flatpak install com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator io.mpv.Mpv io.missioncenter.MissionCenter com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio net.minetest.Minetest com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud/x86_64/23.08 org.freedesktop.Platform.VulkanLayer.gamescope/x86_64/23.08 com.valvesoftware.Steam.CompatibilityTool.Proton-GE page.kramo.Cartridges com.usebottles.bottles -y
+    flatpak install com.discordapp.Discord im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator io.mpv.Mpv io.missioncenter.MissionCenter com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud/x86_64/23.08 org.freedesktop.Platform.VulkanLayer.gamescope/x86_64/23.08 com.valvesoftware.Steam.CompatibilityTool.Proton-GE page.kramo.Cartridges com.usebottles.bottles -y
 	
     # Grants Freetube access to session bus to be able to open videos on MPV
     sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
@@ -151,8 +151,7 @@ function userEnvironmentSetup() {
     # Setting XDG directories and some default applications
     xdg-user-dirs-update
     xdg-mime default org.gnome.Papers.desktop application/pdf
-    xdg-mime default io.github.zen_browser.zen.desktop x-scheme-handler/http
-    xdg-mime default io.github.zen_browser.zen.desktop x-scheme-handler/https
+    xdg-mime default app.zen_browser.zen.desktop x-scheme-handler/http x-scheme-handler/https
 
     # Downloading and extracting icon and cursor themes
     cd $HOME
@@ -162,9 +161,7 @@ function userEnvironmentSetup() {
 
     if [[ $GTKENV == true ]]; then {
 
-        xdg-mime default org.gnome.Loupe.desktop image/png
-        xdg-mime default org.gnome.Loupe.desktop image/jpeg
-        xdg-mime default org.gnome.Loupe.desktop image/webp
+        xdg-mime default org.gnome.Loupe.desktop image/png image/jpeg image/webp
 
         cd $HOME/Tela-circle-icon-theme; ./install.sh -d $HOME/.icons
         mv -v $HOME/Bibata-Modern-Ice $HOME/.icons
