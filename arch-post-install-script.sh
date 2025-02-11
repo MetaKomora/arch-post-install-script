@@ -44,7 +44,7 @@ function desktopEnvironmentInstall() {
     case "$desktopEnvironment" in
         "hyprland")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S hyprland swaybg hypridle hyprlock waybar rofi-wayland grim slurp dunst hyprsunset xorg-xwayland wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
+            sudo pacman -S hyprland swaybg hypridle hyprlock waybar rofi-wayland cliphist grim slurp dunst hyprsunset xorg-xwayland wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
             sudo systemctl enable sddm
             GTKENV=true
             ;;
@@ -102,21 +102,18 @@ function installPrograms() {
     # Enable Wayland support on Thunderbird
     sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.Thunderbird
 
+    # Enable Wayland support on Chromium which allows it to auto scale correctly on HiDPI displays
+    mkdir -pv $HOME/.var/app/org.chromium.Chromium/config/
+    printf "--ozone-platform-hint=auto" > $HOME/.var/app/org.chromium.Chromium/config/chromium-flags.conf
 	
     if [[ $GTKENV == true ]]; then {
-        flatpak install com.github.tchx84.Flatseal com.github.hluk.copyq org.flameshot.Flameshot org.gnome.Calendar org.gnome.Loupe com.saivert.pwvucontrol -y
-
-        # Enable Wayland support on CopyQ
-        sudo flatpak override --env=QT_QPA_PLATFORM=wayland com.github.hluk.copyq
+        flatpak install com.github.tchx84.Flatseal org.flameshot.Flameshot org.gnome.Calendar org.gnome.Loupe com.saivert.pwvucontrol -y
 
         # To Flameshot properly work on Hyprland
         sudo flatpak override --env=XDG_CURRENT_DESKTOP=sway org.flameshot.Flameshot
 
         # For Telegram Pop-ups to work properly
         sudo flatpak override --env=QT_WAYLAND_DISABLED_INTERFACES=wp_fractional_scale_manager_v1 org.telegram.desktop
-
-        # Set manually the Chromium Scaling
-        sudo flatpak override --env=GDK_DPI_SCALE=1.25 org.chromium.Chromium
 
     } else {
         flatpak install org.kde.gwenview -y
