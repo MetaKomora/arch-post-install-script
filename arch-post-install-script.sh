@@ -15,16 +15,17 @@ function initialSystemSetup() {
     sudo reflector --country Sweden,United_States,Canada --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
     # Uncommenting some options on Pacman config
-    sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' -e 's/#ParallelDownloads = 5/ParallelDownloads = 20\nILoveCandy/' /etc/pacman.conf
+    sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' /etc/pacman.conf
 
     # Disable pcspeaker sound on boot
-    [[ ! -e "/etc/modprobe.d/nobeep.conf" ]] && echo "blacklist pcspkr" | sudo tee -a /etc/modprobe.d/nobeep.conf;
+    echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/nobeep.conf;
 
+    # Set $ZDOTDIR variable to $HOME/.config/zsh instead of $HOME
     sudo mkdir -pv /etc/zsh
-    echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
+    echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee /etc/zsh/zshenv
 
     # Making some directories and exporting variables to easy setup later
-    mkdir -pv $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/.local/share/icons $HOME/{.icons,.themes} $HOME/.var/app $HOME/.config/{gtk-3.0,gtk-4.0} $HOME/.icons/default
+    mkdir -pv $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/.local/share/icons $HOME/{.icons,.themes} $HOME/.var/app $HOME/.icons/default
 	
     printf '%s\n' \
         'export XDG_CONFIG_HOME=$HOME/.config' \
@@ -44,22 +45,19 @@ function desktopEnvironmentInstall() {
     case "$desktopEnvironment" in
         "hyprland")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S hyprland swaybg hypridle hyprlock waybar rofi-wayland cliphist grim slurp dunst hyprsunset xorg-xwayland wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
-            sudo systemctl enable sddm
+            sudo pacman -S hyprland swaybg azote nwg-look hypridle hyprlock waybar rofi-wayland cliphist grim slurp dunst hyprsunset wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 network-manager-applet xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
             GTKENV=true
             ;;
 
         "kde")
             printMessage "You choose $desktopEnvironment. Installing environment"
             sudo pacman -S plasma dolphin ark spectacle wl-clipboard xdg-desktop-portal-gtk ffmpegthumbs --noconfirm --needed
-            sudo systemctl enable sddm
             GTKENV=false
             ;;
 
         *)
             printMessage "No environment chosen. Installing KDE Plasma as default"
             sudo pacman -S plasma dolphin ark spectacle wl-clipboard xdg-desktop-portal-gtk ffmpegthumbs --noconfirm --needed
-            sudo systemctl enable sddm
             GTKENV=false
             ;;
     esac
@@ -69,7 +67,7 @@ function desktopEnvironmentInstall() {
 function installPrograms() {
     printMessage "$1"
 
-    sudo pacman -S 7zip adwaita-fonts aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gcr gdu git git-delta gnupg gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji openssh otf-font-awesome poppler ripgrep rsync starship stow tealdeer tela-circle-icon-theme-standard tmux ttf-jetbrains-mono-nerd tuned-ppd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zoxide zsh --noconfirm --needed
+    sudo pacman -S 7zip adwaita-fonts adw-gtk-theme aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gcr gdu git git-delta gnupg gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji openssh otf-font-awesome poppler ripgrep rsync starship stow tealdeer tela-circle-icon-theme-standard tmux ttf-jetbrains-mono-nerd tuned-ppd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zoxide zsh --noconfirm --needed
 
     # Install yay-bin from AUR
     printMessage "Do you want install Yay AUR helper?"
@@ -162,12 +160,6 @@ function userEnvironmentSetup() {
         mv -v $HOME/Bibata-Modern-Ice $HOME/.icons
         cd $HOME
 
-        gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-
-        printf "[Settings]\ngtk-icon-theme-name=Tela-circle-dark\ngtk-cursor-theme-name=Bibata-Modern-Ice\ngtk-cursor-theme-size=24\ngtk-font-name=Noto Sans 11\ngtk-xft-antialias=1\ngtk-xft-hinting=1\ngtk-xft-hintstyle=hintslight\ngtk-xft-rgba=rgb" | tee $HOME/.config/gtk-3.0/settings.ini $HOME/.config/gtk-4.0/settings.ini
-
-        printf "[Icon Theme]\nName=Default\nComment=Default Cursor Theme\nInherits=Bibata-Modern-Ice" >$HOME/.icons/default/index.theme
-
         # GTK FileChooser configuration
         gsettings set org.gtk.Settings.FileChooser sort-directories-first true
         gsettings set org.gtk.Settings.FileChooser show-hidden true
@@ -224,6 +216,7 @@ function systemTweaks() {
     printf "vm.swappiness = 180\nvm.watermark_boost_factor = 0\nvm.watermark_scale_factor = 125\nvm.page-cluster = 0" | sudo tee -a /etc/sysctl.d/99-vm-zram-parameters.conf
 
     # Installing and configuring SDDM theme
+    sudo systemctl enable sddm
     sudo pacman -S qt6-svg qt6-declarative --noconfirm --needed
     sudo mkdir -pv /etc/sddm.conf.d/ /usr/share/sddm/themes/
     curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[3].browser_download_url')";
@@ -231,13 +224,30 @@ function systemTweaks() {
     sudo mv catppuccin-mocha /usr/share/sddm/themes/
     sudo rm catppuccin-mocha.zip
 
-    printf '%s\n' \
-        '[Theme]' \
-        'Current=catppuccin-mocha' \
-        '[General]' \
-        'GreeterEnvironment=QT_SCREEN_SCALE_FACTORS=1.25' \
-        '[Wayland]' \
-        'EnableHiDPI=true' | sudo tee -a /etc/sddm.conf.d/default.conf
+    if [[ $GTKENV == true ]]; then {
+        # Copying Hyprland default configuration to SDDM subdirectories and exporting configuration to use SDDM native on Wayland with Hyprland
+        sudo mkdir -pv /var/lib/sddm/.config/hypr/
+        sudo cp -v /usr/share/hypr/hyprland.conf /var/lib/sddm/.config/hypr/hyprland.conf
+        printf '%s\n' \
+            '[Theme]' \
+            'Current=catppuccin-mocha' \
+            '[General]' \
+            'DisplayServer=wayland' \
+            '[Wayland]' \
+            'CompositorCommand=Hyprland' | sudo tee /etc/sddm.conf.d/default.conf
+
+    } else {
+        # Exporting configuration to use SDDM native on Wayland with KDE
+        printf '%s\n' \
+            '[Theme]' \
+            'Current=catppuccin-mocha' \
+            '[General]' \
+            'DisplayServer=wayland' \
+            'GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell' \
+            '[Wayland]' \
+            'CompositorCommand=kwin_wayland --drm --no-lockscreen --no-global-shortcuts --locale1' | sudo tee /etc/sddm.conf.d/10-wayland.conf
+    }
+    fi
 
     # Change shell to ZSH
     chsh -s /usr/bin/zsh
