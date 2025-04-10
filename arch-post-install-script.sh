@@ -87,9 +87,9 @@ function installPrograms() {
     # Grants Flatpak read access to all possible locations for themes and icons inside $HOME directory and Mangohud config read access
     sudo flatpak override --filesystem=~/.themes:ro --filesystem=~/.icons:ro --filesystem=~/.local/share/icons:ro --filesystem=~/.local/share/themes:ro --filesystem=xdg-config/gtk-3.0:ro --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/MangoHud:ro --env=XCURSOR_PATH=~/.icons
 	
-    flatpak install org.mozilla.firefox app.zen_browser.zen org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers -y
+    flatpak install org.mozilla.firefox app.zen_browser.zen org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers org.gnome.Loupe -y
 
-    flatpak install im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator io.mpv.Mpv io.missioncenter.MissionCenter com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio net.lutris.Lutris com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud//23.08 org.freedesktop.Platform.VulkanLayer.gamescope//23.08 com.valvesoftware.Steam.CompatibilityTool.Proton-GE -y
+    flatpak install im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator org.gnome.Calendar io.mpv.Mpv com.github.tchx84.Flatseal com.saivert.pwvucontrol io.missioncenter.MissionCenter com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio net.lutris.Lutris com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud//23.08 org.freedesktop.Platform.VulkanLayer.gamescope//23.08 com.valvesoftware.Steam.CompatibilityTool.Proton-GE -y
 	
     # Grants Freetube access to session bus to be able to open videos on MPV
     sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
@@ -102,11 +102,11 @@ function installPrograms() {
 
     # Enable Wayland support on Chromium which allows it to auto scale correctly on HiDPI displays
     mkdir -pv $HOME/.var/app/org.chromium.Chromium/config/
-    printf "--ozone-platform-hint=auto" > $HOME/.var/app/org.chromium.Chromium/config/chromium-flags.conf
+    printf "--ozone-platform-hint=auto" | tee $HOME/.var/app/org.chromium.Chromium/config/chromium-flags.conf
 	
     if [[ $GTKENV == true ]]; then {
         # Install these packages just for Hyprland
-        flatpak install com.github.tchx84.Flatseal org.flameshot.Flameshot org.gnome.Calendar org.gnome.Loupe com.saivert.pwvucontrol -y
+        flatpak install org.flameshot.Flameshot -y
 
         # To Flameshot properly work on Hyprland
         sudo flatpak override --env=XDG_CURRENT_DESKTOP=sway org.flameshot.Flameshot
@@ -114,9 +114,6 @@ function installPrograms() {
         # For Telegram Pop-ups to work properly on Hyprland
         sudo flatpak override --env=QT_WAYLAND_DISABLED_INTERFACES=wp_fractional_scale_manager_v1 org.telegram.desktop
 
-    } else {
-        # Install gwenview just for KDE
-        flatpak install org.kde.gwenview -y
     }
     fi
 	
@@ -144,6 +141,7 @@ function userEnvironmentSetup() {
     # Setting XDG directories and some default applications
     xdg-user-dirs-update
     xdg-mime default org.gnome.Papers.desktop application/pdf
+    xdg-mime default org.gnome.Loupe.desktop image/png image/jpeg image/webp
     xdg-mime default app.zen_browser.zen.desktop x-scheme-handler/http x-scheme-handler/https
 
     # Downloading and extracting cursor theme
@@ -152,8 +150,6 @@ function userEnvironmentSetup() {
     tar -xvf Bibata-Modern-Ice.tar.xz
 
     if [[ $GTKENV == true ]]; then {
-
-        xdg-mime default org.gnome.Loupe.desktop image/png image/jpeg image/webp
 
         mv -v $HOME/Bibata-Modern-Ice $HOME/.icons
         cd $HOME
@@ -166,13 +162,13 @@ function userEnvironmentSetup() {
 
     } else {
 
-        xdg-mime default org.kde.gwenview.desktop image/png image/jpeg image/webp
-
         mv -v $HOME/Bibata-Modern-Ice $HOME/.local/share/icons
         cd $HOME
+        printf "[Icon Theme]\nName=Default\nComment=Default Cursor Theme\nInherits=Bibata-Modern-Ice" | tee $HOME/.icons/default/index.theme
 
         git clone --depth=1 https://github.com/catppuccin/kde catppuccin-kde && cd catppuccin-kde; ./install.sh;
-        ln -s ~/.local/share/icons/ ~/.icons
+        rm -rfv catppuccin-kde
+        ln -s ~/.local/share/icons/* ~/.icons
 
     }
     fi
@@ -181,8 +177,8 @@ function userEnvironmentSetup() {
     ya pack -a "yazi-rs/flavors#catppuccin-mocha"
 
     # Cleanup
-    rm -rfv Bibata-Modern-Ice.tar.xz .npm
-    rm -v .bashrc .bash_profile .bash_logout .bash_history
+    rm -rfv .npm
+    rm -v Bibata-Modern-Ice.tar.xz .bashrc .bash_profile .bash_logout .bash_history
 
     echo "eval \"\$(starship init zsh)\"" >> "$HOME/.config/zsh/.zshrc"
 	
@@ -207,7 +203,7 @@ function systemTweaks() {
         echo "zram" | sudo tee /etc/modules-load.d/zram.conf
 	
         # Create a udev rule. Change ATTR{disksize} to your needs
-        echo 'ACTION=="add", KERNEL=="zram0", ATTR{initstate}=="0", ATTR{comp_algorithm}="zstd", ATTR{disksize}="4G", RUN="/usr/bin/mkswap -U clear %N", TAG+="systemd"' | sudo tee /etc/udev/rules.d/99-zram.rules
+        echo 'ACTION=="add", KERNEL=="zram0", ATTR{initstate}=="0", ATTR{comp_algorithm}="zstd", ATTR{disksize}="4700M", RUN="/usr/bin/mkswap -U clear %N", TAG+="systemd"' | sudo tee /etc/udev/rules.d/99-zram.rules
 	
         # Add /dev/zram to your fstab
         echo "/dev/zram0 none swap defaults,discard,pri=100 0 0" | sudo tee -a /etc/fstab
@@ -240,6 +236,9 @@ function systemTweaks() {
 
     } else {
         # Exporting configuration to use SDDM native on Wayland with KDE
+        sudo mkdir -pv /var/lib/sddm/.config/
+        #sudo cp ~/.config/kwinoutputconfig.json /var/lib/sddm/.config/ # Use these 2 commands after screen GUI configuration
+        #sudo chown sddm:sddm /var/lib/sddm/.config/kwinoutputconfig.json
         printf '%s\n' \
             '[Theme]' \
             'Current=catppuccin-mocha' \
