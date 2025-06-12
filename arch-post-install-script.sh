@@ -92,7 +92,7 @@ function installPrograms() {
     flatpak install im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator org.gnome.Calendar io.mpv.Mpv com.github.tchx84.Flatseal com.saivert.pwvucontrol io.missioncenter.MissionCenter com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio net.lutris.Lutris com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud//23.08 org.freedesktop.Platform.VulkanLayer.gamescope//23.08 com.valvesoftware.Steam.CompatibilityTool.Proton-GE -y
 	
     # Grants Freetube access to session bus to be able to open videos on MPV
-    sudo flatpak override --socket=session-bus io.freetubeapp.FreeTube
+    sudo flatpak override --talk-name=org.freedesktop.Flatpak io.freetubeapp.FreeTube
 
     # Enable Mangohud on Steam games, grants Steam access to Games directory and force Steam fractional scaling
     sudo flatpak override --env=STEAM_FORCE_DESKTOPUI_SCALING=1.25 --env=MANGOHUD=1 --filesystem=$HOME/Games com.valvesoftware.Steam
