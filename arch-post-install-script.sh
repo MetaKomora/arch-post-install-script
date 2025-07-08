@@ -25,7 +25,7 @@ function initialSystemSetup() {
     echo "export ZDOTDIR=$HOME/.config/zsh" | sudo tee /etc/zsh/zshenv
 
     # Making some directories and exporting variables to easy setup later
-    mkdir -pv $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/.local/share/icons $HOME/{.icons,.themes} $HOME/.var/app $HOME/.icons/default
+    mkdir -pv $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/.icons/default $HOME/.local/share/icons $HOME/.var/app 
 	
     printf '%s\n' \
         'export XDG_CONFIG_HOME=$HOME/.config' \
@@ -45,7 +45,7 @@ function desktopEnvironmentInstall() {
     case "$desktopEnvironment" in
         "hyprland")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S hyprland swaybg azote nwg-look hypridle hyprlock waybar rofi-wayland cliphist grim slurp dunst hyprsunset wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 network-manager-applet xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse --noconfirm --needed
+            sudo pacman -S hyprland swaybg azote nwg-look hypridle hyprlock waybar rofi-wayland cliphist hyprpicker grim slurp dunst hyprsunset wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 network-manager-applet xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse qt5-wayland --noconfirm --needed
             GTKENV=true
             ;;
 
@@ -67,7 +67,7 @@ function desktopEnvironmentInstall() {
 function installPrograms() {
     printMessage "$1"
 
-    sudo pacman -S 7zip adwaita-fonts adw-gtk-theme aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gcr gdu git git-delta gnupg gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji openssh otf-font-awesome poppler ripgrep rsync starship stow tealdeer tela-circle-icon-theme-standard tmux ttf-jetbrains-mono-nerd tuned-ppd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zoxide zsh --noconfirm --needed
+    sudo pacman -S 7zip adwaita-fonts adw-gtk-theme aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gcr gdu git git-delta gnupg gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji openssh otf-font-awesome poppler ripgrep rsync starship stow tealdeer tela-circle-icon-theme-standard ttf-jetbrains-mono-nerd tuned-ppd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zellij zoxide zsh --noconfirm --needed
 
     # Install yay-bin from AUR
     printMessage "Do you want install Yay AUR helper?"
@@ -87,9 +87,9 @@ function installPrograms() {
     # Grants Flatpak read access to all possible locations for themes and icons inside $HOME directory and Mangohud config read access
     sudo flatpak override --filesystem=~/.themes:ro --filesystem=~/.icons:ro --filesystem=~/.local/share/icons:ro --filesystem=~/.local/share/themes:ro --filesystem=xdg-config/gtk-3.0:ro --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/MangoHud:ro --env=XCURSOR_PATH=~/.icons
 	
-    flatpak install org.mozilla.firefox app.zen_browser.zen org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers org.gnome.Loupe -y
+    flatpak install org.mozilla.firefox app.zen_browser.zen org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers org.gnome.Loupe be.alexandervanhee.gradia -y
 
-    flatpak install im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator org.gnome.Calendar io.mpv.Mpv com.github.tchx84.Flatseal com.saivert.pwvucontrol io.missioncenter.MissionCenter com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio net.lutris.Lutris com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud//23.08 org.freedesktop.Platform.VulkanLayer.gamescope//23.08 com.valvesoftware.Steam.CompatibilityTool.Proton-GE -y
+    flatpak install im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator org.gnome.Calendar io.mpv.Mpv com.github.tchx84.Flatseal page.codeberg.libre_menu_editor.LibreMenuEditor com.saivert.pwvucontrol io.missioncenter.MissionCenter org.gabmus.gfeeds com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio org.qbittorrent.qBittorrent org.luanti.luanti page.kramo.Cartridges net.lutris.Lutris com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud//23.08 org.freedesktop.Platform.VulkanLayer.gamescope//23.08 -y
 	
     # Grants Freetube access to session bus to be able to open videos on MPV
     sudo flatpak override --talk-name=org.freedesktop.Flatpak io.freetubeapp.FreeTube
@@ -105,18 +105,10 @@ function installPrograms() {
     printf "--ozone-platform-hint=auto" | tee $HOME/.var/app/org.chromium.Chromium/config/chromium-flags.conf
 	
     if [[ $GTKENV == true ]]; then {
-        # Install these packages just for Hyprland
-        flatpak install org.flameshot.Flameshot -y
-
-        # To Flameshot properly work on Hyprland
-        sudo flatpak override --env=XDG_CURRENT_DESKTOP=sway org.flameshot.Flameshot
-
         # For Telegram Pop-ups to work properly on Hyprland
         sudo flatpak override --env=QT_WAYLAND_DISABLED_INTERFACES=wp_fractional_scale_manager_v1 org.telegram.desktop
-
     }
     fi
-	
 }
 
 function devEnvironmentSetup() {
@@ -130,7 +122,7 @@ function devEnvironmentSetup() {
 
     # Mise and pnpm completions and Mise plugins installation
     $HOME/.local/bin/mise completion zsh >> "$HOME/.config/zsh/.zshrc"
-    $HOME/.local/bin/mise use -g -y usage node@20 pnpm shellcheck@0.9.0
+    $HOME/.local/bin/mise use -g -y usage node@22 pnpm shellcheck@0.9.0
     #pnpm setup # Manually use the command later, until proper fix
 
 }
