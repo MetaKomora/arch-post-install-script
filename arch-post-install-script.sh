@@ -15,7 +15,7 @@ function initialSystemSetup() {
     sudo reflector --country Sweden,United_States --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 
     # Uncommenting some options on Pacman config
-    sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' /etc/pacman.conf
+    sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' -e 's/ParallelDownloads = 5/ParallelDownloads = 10\nILoveCandy/' /etc/pacman.conf
 
     # Disable pcspeaker sound on boot
     echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/nobeep.conf;
@@ -28,6 +28,7 @@ function initialSystemSetup() {
     mkdir -pv $HOME/.config/{zsh,zim} $HOME/.local/{bin,share} $HOME/.icons/default $HOME/.local/share/icons $HOME/.var/app 
 	
     printf '%s\n' \
+        'export GDK_SCALE=1.25' \
         'export XDG_CONFIG_HOME=$HOME/.config' \
         'export XDG_CACHE_HOME=$HOME/.cache' \
         'export XDG_DATA_HOME=$HOME/.local/share' \
@@ -67,7 +68,7 @@ function desktopEnvironmentInstall() {
 function installPrograms() {
     printMessage "$1"
 
-    sudo pacman -S 7zip adwaita-fonts adw-gtk-theme aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gcr gdu git git-delta gnupg gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages neovim noto-fonts noto-fonts-cjk noto-fonts-emoji openssh otf-font-awesome poppler ripgrep rsync starship stow tealdeer tela-circle-icon-theme-standard ttf-jetbrains-mono-nerd tuned-ppd unzip vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zellij zoxide zsh --noconfirm --needed
+    sudo pacman -S 7zip adwaita-fonts adw-gtk-theme aria2 bat brightnessctl btop fastfetch fd ffmpegthumbnailer flatpak fzf gcr gdu git git-delta gnupg gum gvfs-mtp inxi jq kitty libnotify lsd man-db man-pages mise neovim noto-fonts noto-fonts-cjk noto-fonts-emoji openssh otf-font-awesome poppler ripgrep rsync starship stow tealdeer tela-circle-icon-theme-standard ttf-jetbrains-mono-nerd tuned-ppd unzip usage vulkan-radeon webp-pixbuf-loader wget xdg-user-dirs xdg-utils yad yazi yt-dlp zellij zoxide zsh --noconfirm --needed
 
     # Install yay-bin from AUR
     printMessage "Do you want install Yay AUR helper?"
@@ -87,22 +88,22 @@ function installPrograms() {
     # Grants Flatpak read access to all possible locations for themes and icons inside $HOME directory and Mangohud config read access
     sudo flatpak override --filesystem=~/.themes:ro --filesystem=~/.icons:ro --filesystem=~/.local/share/icons:ro --filesystem=~/.local/share/themes:ro --filesystem=xdg-config/gtk-3.0:ro --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/MangoHud:ro --env=XCURSOR_PATH=~/.icons
 	
-    flatpak install org.mozilla.firefox app.zen_browser.zen org.mozilla.Thunderbird org.chromium.Chromium org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers org.gnome.Loupe be.alexandervanhee.gradia -y
+    flatpak install org.mozilla.firefox app.zen_browser.zen org.mozilla.Thunderbird org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers org.gnome.Loupe be.alexandervanhee.gradia -y
 
-    flatpak install im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator org.gnome.Calendar io.mpv.Mpv com.github.tchx84.Flatseal page.codeberg.libre_menu_editor.LibreMenuEditor com.saivert.pwvucontrol io.missioncenter.MissionCenter org.gabmus.gfeeds com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio org.qbittorrent.qBittorrent org.luanti.luanti page.kramo.Cartridges net.lutris.Lutris com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud//23.08 org.freedesktop.Platform.VulkanLayer.gamescope//23.08 -y
+    flatpak install org.chromium.Chromium im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator org.gnome.Calendar io.mpv.Mpv com.github.tchx84.Flatseal page.codeberg.libre_menu_editor.LibreMenuEditor com.saivert.pwvucontrol io.missioncenter.MissionCenter org.gabmus.gfeeds com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio org.qbittorrent.qBittorrent org.luanti.luanti page.kramo.Cartridges net.lutris.Lutris com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud//23.08 org.freedesktop.Platform.VulkanLayer.gamescope//23.08 -y
 	
     # Grants Freetube access to session bus to be able to open videos on MPV
     sudo flatpak override --talk-name=org.freedesktop.Flatpak io.freetubeapp.FreeTube
 
-    # Enable Mangohud on Steam games, grants Steam access to Games directory and force Steam fractional scaling
-    sudo flatpak override --env=STEAM_FORCE_DESKTOPUI_SCALING=1.25 --env=MANGOHUD=1 --filesystem=$HOME/Games com.valvesoftware.Steam
+    # Enable Mangohud on Steam Flatpak games and grants Steam Flatpak access to Games directory
+    sudo flatpak override --env=MANGOHUD=1 --filesystem=$HOME/Games com.valvesoftware.Steam
 
     # Enable Wayland support on Thunderbird
     sudo flatpak override --env=MOZ_ENABLE_WAYLAND=1 org.mozilla.Thunderbird
 
     # Enable Wayland support on Chromium which allows it to auto scale correctly on HiDPI displays
     mkdir -pv $HOME/.var/app/org.chromium.Chromium/config/
-    printf "--ozone-platform-hint=auto" | tee $HOME/.var/app/org.chromium.Chromium/config/chromium-flags.conf
+    echo "--ozone-platform-hint=auto" | tee $HOME/.var/app/org.chromium.Chromium/config/chromium-flags.conf
 	
     if [[ $GTKENV == true ]]; then {
         # For Telegram Pop-ups to work properly on Hyprland
@@ -114,15 +115,14 @@ function installPrograms() {
 function devEnvironmentSetup() {
     printMessage "$1"
 
-    printf "\nInstalling Mise version manager, nodeJS, pnpm and shellcheck\n"
+    printf "\nInstalling Mise version manager packages: nodeJS, pnpm and shellcheck\n"
 
-    # Mise installation and activation to use now
-    curl https://mise.run | sh
-    echo "eval \"\$($HOME/.local/bin/mise activate zsh)\"" >> "$HOME/.config/zsh/.zshrc"
+    # Mise activation
+    echo "eval \"\$(/usr/bin/mise activate zsh)\"" >> "$HOME/.config/zsh/.zshrc"
 
     # Mise and pnpm completions and Mise plugins installation
-    $HOME/.local/bin/mise completion zsh >> "$HOME/.config/zsh/.zshrc"
-    $HOME/.local/bin/mise use -g -y usage node@22 pnpm shellcheck@0.9.0
+    /usr/bin/mise completion zsh >> "$HOME/.config/zsh/.zshrc"
+    /usr/bin/mise use -g -y node@22 pnpm shellcheck@0.9.0
     #pnpm setup # Manually use the command later, until proper fix
 
 }
@@ -165,8 +165,9 @@ function userEnvironmentSetup() {
     }
     fi
 
-    # Yazi catppuccin-mocha theme installation
-    ya pack -a "yazi-rs/flavors#catppuccin-mocha"
+    # Yazi catppuccin-mocha flavor installation
+    mkdir -pv ~/.config/yazi/
+    curl https://raw.githubusercontent.com/catppuccin/yazi/refs/heads/main/themes/mocha/catppuccin-mocha-blue.toml -o ~/.config/yazi/theme.toml
 
     # Cleanup
     rm -rfv .npm
