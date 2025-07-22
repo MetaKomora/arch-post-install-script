@@ -13,6 +13,7 @@ function initialSystemSetup() {
     # Change mirrorlist
     sudo pacman -Syyu reflector --noconfirm --needed
     sudo reflector --country Sweden,United_States --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+    printf "\n\n\n\n"
 
     # Uncommenting some options on Pacman config
     sudo sed -i -e 's/#Color/Color/' -e 's/#VerbosePkgLists/VerbosePkgLists/' -e 's/ParallelDownloads = 5/ParallelDownloads = 10\nILoveCandy/' /etc/pacman.conf
@@ -159,6 +160,7 @@ function userEnvironmentSetup() {
         printf "[Icon Theme]\nName=Default\nComment=Default Cursor Theme\nInherits=Bibata-Modern-Ice" | tee $HOME/.icons/default/index.theme
 
         git clone --depth=1 https://github.com/catppuccin/kde catppuccin-kde && cd catppuccin-kde; ./install.sh;
+        cd $HOME
         rm -rfv catppuccin-kde
         ln -s ~/.local/share/icons/* ~/.icons
 
@@ -208,12 +210,13 @@ function systemTweaks() {
     
     # Installing and configuring SDDM theme
     sudo systemctl enable sddm
-    sudo pacman -S qt6-svg qt6-declarative --noconfirm --needed
+    sudo pacman -S qt6-svg qt6-declarative qt5-quickcontrols2 --noconfirm --needed
     sudo mkdir -pv /etc/sddm.conf.d/ /usr/share/sddm/themes/
-    curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[3].browser_download_url')";
-    7z x catppuccin-mocha.zip
-    sudo mv catppuccin-mocha /usr/share/sddm/themes/
-    sudo rm catppuccin-mocha.zip
+    curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[42].browser_download_url')";
+    7z x catppuccin-mocha-blue-sddm.zip -ocatppuccin-mocha-blue-sddm
+    printf "\n\n\n\n"; sleep 3;
+    sudo mv catppuccin-mocha-blue-sddm /usr/share/sddm/themes/
+    sudo rm -v catppuccin-mocha-blue-sddm.zip
 
     if [[ $GTKENV == true ]]; then {
         # Copying Hyprland default configuration to SDDM subdirectories and exporting configuration to use SDDM native on Wayland with Hyprland
@@ -221,7 +224,7 @@ function systemTweaks() {
         sudo cp -v /usr/share/hypr/hyprland.conf /var/lib/sddm/.config/hypr/hyprland.conf
         printf '%s\n' \
             '[Theme]' \
-            'Current=catppuccin-mocha' \
+            'Current=catppuccin-mocha-blue' \
             '[General]' \
             'DisplayServer=wayland' \
             '[Wayland]' \
@@ -234,7 +237,7 @@ function systemTweaks() {
         #sudo chown sddm:sddm /var/lib/sddm/.config/kwinoutputconfig.json
         printf '%s\n' \
             '[Theme]' \
-            'Current=catppuccin-mocha' \
+            'Current=catppuccin-mocha-blue' \
             '[General]' \
             'DisplayServer=wayland' \
             'GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell' \
@@ -242,6 +245,8 @@ function systemTweaks() {
             'CompositorCommand=kwin_wayland --drm --no-lockscreen --no-global-shortcuts --locale1' | sudo tee /etc/sddm.conf.d/10-wayland.conf
     }
     fi
+
+    printf "\n\n\n\n"
 
     # Change shell to ZSH
     chsh -s /usr/bin/zsh
