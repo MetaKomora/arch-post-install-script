@@ -47,7 +47,7 @@ function desktopEnvironmentInstall() {
     case "$desktopEnvironment" in
         "hyprland")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S hyprland swaybg azote nwg-look hypridle hyprlock waybar rofi-wayland cliphist hyprpicker grim slurp dunst hyprsunset wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 network-manager-applet xdg-desktop-portal-gtk xdg-desktop-portal-hyprland sddm pipewire-pulse qt5-wayland --noconfirm --needed
+            sudo pacman -S hyprland swaybg azote nwg-look hypridle hyprlock waybar rofi-wayland cliphist hyprpicker grim slurp dunst hyprsunset wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 network-manager-applet xdg-desktop-portal-gtk xdg-desktop-portal-hyprland pipewire-pulse qt5-wayland --noconfirm --needed
             GTKENV=true
             ;;
 
@@ -208,29 +208,23 @@ function systemTweaks() {
     }
     fi
     
-    # Installing and configuring SDDM theme
-    sudo systemctl enable sddm
-    sudo pacman -S qt6-svg qt6-declarative qt5-quickcontrols2 --noconfirm --needed
-    sudo mkdir -pv /etc/sddm.conf.d/ /usr/share/sddm/themes/
-    curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[42].browser_download_url')";
-    7z x catppuccin-mocha-blue-sddm.zip -ocatppuccin-mocha-blue-sddm
-    printf "\n\n\n\n"; sleep 3;
-    sudo mv catppuccin-mocha-blue-sddm /usr/share/sddm/themes/
-    sudo rm -v catppuccin-mocha-blue-sddm.zip
-
+    # Configuring display manager
     if [[ $GTKENV == true ]]; then {
-        # Copying Hyprland default configuration to SDDM subdirectories and exporting configuration to use SDDM native on Wayland with Hyprland
-        sudo mkdir -pv /var/lib/sddm/.config/hypr/
-        sudo cp -v /usr/share/hypr/hyprland.conf /var/lib/sddm/.config/hypr/hyprland.conf
-        printf '%s\n' \
-            '[Theme]' \
-            'Current=catppuccin-mocha-blue' \
-            '[General]' \
-            'DisplayServer=wayland' \
-            '[Wayland]' \
-            'CompositorCommand=Hyprland' | sudo tee /etc/sddm.conf.d/default.conf
+        # Installing and enabling ly display manager
+        sudo pacman -S ly --noconfirm --needed
+        sudo systemctl enable ly
 
     } else {
+        # Installing and configuring SDDM theme
+        sudo systemctl enable sddm
+        sudo pacman -S qt6-svg qt6-declarative qt5-quickcontrols2 --noconfirm --needed
+        sudo mkdir -pv /etc/sddm.conf.d/ /usr/share/sddm/themes/
+        curl -L -O "$(curl "https://api.github.com/repos/catppuccin/sddm/releases" | jq -r '.[0].assets[42].browser_download_url')";
+        7z x catppuccin-mocha-blue-sddm.zip -ocatppuccin-mocha-blue-sddm
+        printf "\n\n\n\n"; sleep 3;
+        sudo mv catppuccin-mocha-blue-sddm /usr/share/sddm/themes/
+        sudo rm -v catppuccin-mocha-blue-sddm.zip
+
         # Exporting configuration to use SDDM native on Wayland with KDE
         sudo mkdir -pv /var/lib/sddm/.config/
         #sudo cp ~/.config/kwinoutputconfig.json /var/lib/sddm/.config/ # Use these 2 commands after screen GUI configuration
