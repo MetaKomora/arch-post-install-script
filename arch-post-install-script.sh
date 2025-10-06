@@ -47,7 +47,7 @@ function desktopEnvironmentInstall() {
     case "$desktopEnvironment" in
         "hyprland")
             printMessage "You choose $desktopEnvironment. Installing environment"
-            sudo pacman -S hyprland swaybg azote nwg-look hypridle hyprlock waybar rofi-wayland cliphist hyprpicker grim slurp dunst hyprsunset wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 network-manager-applet xdg-desktop-portal-gtk xdg-desktop-portal-hyprland pipewire-pulse qt5-wayland --noconfirm --needed
+            sudo pacman -S hyprland swaybg azote nwg-look hypridle hyprlock waybar rofi cliphist nwg-clipman hyprpicker grim slurp swaync hyprsunset wl-clipboard nautilus gnome-epub-thumbnailer hyprpolkitagent udiskie libappindicator-gtk3 network-manager-applet xdg-desktop-portal-gtk xdg-desktop-portal-hyprland pipewire-pulse qt5-wayland --noconfirm --needed
             GTKENV=true
             ;;
 
@@ -91,7 +91,7 @@ function installPrograms() {
 	
     flatpak install org.mozilla.firefox app.zen_browser.zen org.mozilla.Thunderbird org.telegram.desktop com.valvesoftware.Steam io.freetubeapp.FreeTube org.gnome.Papers org.gnome.Loupe be.alexandervanhee.gradia -y
 
-    flatpak install org.chromium.Chromium im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator org.gnome.Calendar io.mpv.Mpv com.github.tchx84.Flatseal page.codeberg.libre_menu_editor.LibreMenuEditor com.saivert.pwvucontrol io.missioncenter.MissionCenter org.gabmus.gfeeds com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio org.qbittorrent.qBittorrent org.luanti.luanti page.kramo.Cartridges net.lutris.Lutris com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud//23.08 org.freedesktop.Platform.VulkanLayer.gamescope//23.08 -y
+    flatpak install org.chromium.Chromium im.riot.Riot org.libreoffice.LibreOffice org.gnome.clocks org.gnome.Calculator org.gnome.Calendar io.mpv.Mpv com.github.tchx84.Flatseal page.codeberg.libre_menu_editor.LibreMenuEditor com.saivert.pwvucontrol io.missioncenter.MissionCenter org.gabmus.gfeeds com.github.johnfactotum.Foliate io.github.josephmawa.Bella com.usebruno.Bruno com.obsproject.Studio org.qbittorrent.qBittorrent page.kramo.Cartridges net.lutris.Lutris com.heroicgameslauncher.hgl org.libretro.RetroArch org.freedesktop.Platform.VulkanLayer.MangoHud//23.08 org.freedesktop.Platform.VulkanLayer.gamescope//23.08 -y
 	
     # Grants Freetube access to session bus to be able to open videos on MPV
     sudo flatpak override --talk-name=org.freedesktop.Flatpak io.freetubeapp.FreeTube
